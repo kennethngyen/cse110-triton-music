@@ -1,7 +1,37 @@
 import "../App.css";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
+	const [username, setUsername] = useState<string>("");
+	const [password, setPassword] = useState<string>("");
+	const navigate = useNavigate();
+
+	const handleLogin = (e: React.FormEvent) => { // handle form submission
+		e.preventDefault();
+		if (username && password) {
+			localStorage.setItem("token", "mockToken"); // simulate auth state
+			navigate("/dashboard");
+		} else {
+			alert("Please enter both username and password.");
+		}
+	};
+
+	const handleSignup = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (username && password) {
+			// Simulate account creation by showing a message or storing data
+			alert("Account created successfully! Logging you in...");
+
+			localStorage.setItem("token", "mockSignupToken"); // Store a mock token to indicate logged-in status
+			// Redirect to the dashboard
+			navigate("/dashboard");
+		} else {
+			alert("Please enter both username and password to sign up.");
+		}
+	};
+
 	return (
 		<div className="relative flex flex-col">
 			<main className="flex-1 px-4 sm:px-6 lg:px-8">
