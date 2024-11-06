@@ -13,9 +13,11 @@ app.use(cors());
 app.use(express.json());
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+  });
+}
 
 // Root endpoint to get test if the server is running
 app.get("/", (req: Request, res: Response) => {
@@ -25,3 +27,5 @@ app.get("/", (req: Request, res: Response) => {
 
 createFeedEndpoints(app, feedItems, users);
 createAccountEndpoints(app, users);
+
+export { app };
