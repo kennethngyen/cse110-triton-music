@@ -1,7 +1,5 @@
 import React, { ChangeEventHandler, useState } from "react";
-import "./App.css";
-import { dummyGroceryList } from "../constants/constants";
-import { GroceryItem } from "../types/types";
+import "../App.css";
 
 import { useParams } from "react-router-dom";
 
