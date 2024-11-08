@@ -1,5 +1,7 @@
 import "../App"
 import "../index"
+import "../App.css";
+
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 
@@ -37,7 +39,6 @@ export function Profile() {
             Connect Spotify
           </button>
         </div>
-
         <div className="friends-section">
           <h3>Your Friends</h3>
           <ul>
