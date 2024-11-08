@@ -39,7 +39,6 @@ export function Profile() {
             Connect Spotify
           </button>
         </div>
-
         <div className="friends-section">
           <h3>Your Friends</h3>
           <ul>
