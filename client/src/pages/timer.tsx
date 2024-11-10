@@ -2,7 +2,7 @@ import "../App";
 import "../index";
 import { useState, useEffect } from "react";
 import "../styles/Timer.css";
-import React, { ChangeEventHandler, useState } from "react";
+import React, { ChangeEventHandler } from "react";
 import "../App.css";
 
 interface TimerSettings {
