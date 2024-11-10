@@ -1,7 +1,5 @@
 import React, { ChangeEventHandler, useState } from "react";
 import "../App.css";
-
-
 import { useParams } from "react-router-dom";
 
 export function Timer() {
