@@ -1,6 +1,6 @@
 import "../App"
 import "../index"
-import "../App.css";
+import "../profile-page.css";
 import { useParams } from "react-router-dom";
 
 export function Profile() {
