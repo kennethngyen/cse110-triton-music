@@ -5,6 +5,7 @@ export const Navbar = () => {
 		<div>
 			<nav style={{ display: "flex", justifyContent: "space-around" }}>
 				<Link to="/">Home</Link>
+				<Link to ="/music-feed">Music Feed</Link>
 				<Link to="/study">Study</Link>
 				<Link to="/profile/me">Profile</Link>
 			</nav>

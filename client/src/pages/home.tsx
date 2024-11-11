@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+
 export const Home = () => {
 	const [username, setUsername] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
@@ -81,3 +82,4 @@ export const Home = () => {
 		</div>
 	);
 };
+

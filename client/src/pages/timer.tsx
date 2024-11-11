@@ -5,11 +5,13 @@ import "../styles/Timer.css";
 import React, { ChangeEventHandler, useState } from "react";
 import "../App.css";
 
+
 interface TimerSettings {
   pomodoro: number;
   shortBreak: number;
   longBreak: number;
 }
+
 
 export function Timer() {
   const [minutes, setMinutes] = useState(25);
