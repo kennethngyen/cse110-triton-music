@@ -26,14 +26,41 @@ describe("Timer Component", () => {
     renderTimer();
     expect(screen.getByText("START")).toBeInTheDocument();
     expect(screen.getByText("Pomodoro")).toBeInTheDocument();
+    expect(screen.getByText("Long Break")).toBeInTheDocument();
+    expect(screen.getByText("Short Break")).toBeInTheDocument();
+    expect(screen.getByText("Choose Song")).toBeInTheDocument();
+    expect(screen.getByText("Setting")).toBeInTheDocument();
+    expect(screen.getByText("Add Task")).toBeInTheDocument();
   });
 
-  test("can add a task", () => {
+  test("can add and delete a task", () => {
     renderTimer();
+    // Add task
     const input = screen.getByPlaceholderText("Enter your task...");
     fireEvent.change(input, { target: { value: "Test Task" } });
     fireEvent.click(screen.getByText("Add Task"));
     expect(screen.getByText("Test Task")).toBeInTheDocument();
+
+    // Delete task
+    const deleteButton = screen.getByText("×");
+    fireEvent.click(deleteButton);
+    expect(screen.queryByText("Test Task")).not.toBeInTheDocument();
+  });
+
+  test("can update timer settings", () => {
+    renderTimer();
+    // Open settings
+    fireEvent.click(screen.getByText("Setting"));
+
+    // Change pomodoro time to 30 minutes
+    const pomodoroInput = screen.getByLabelText("Pomodoro (minutes):");
+    fireEvent.change(pomodoroInput, { target: { value: "30" } });
+
+    // Save settings
+    fireEvent.click(screen.getByText("Save Settings"));
+
+    // Check if timer updated to 30:00
+    expect(screen.getByText("30:00")).toBeInTheDocument();
   });
 
   test("can switch to short break", () => {
