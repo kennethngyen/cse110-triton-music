@@ -10,9 +10,6 @@ jest.mock("../styles/index.css", () => ({}));
 jest.mock("../App", () => ({}));
 jest.mock("../index", () => ({}));
 
-// Mock document.getElementById
-document.getElementById = jest.fn(() => document.createElement("div"));
-
 describe("Timer Component", () => {
   const renderTimer = () => {
     render(
