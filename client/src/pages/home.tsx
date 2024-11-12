@@ -20,18 +20,8 @@ export const Home = () => {
 		}
 	};
 
-	const handleSignup = (e: React.FormEvent) => {
-		e.preventDefault();
-		if (username && password) {
-			// Simulate account creation by showing a message or storing data
-			alert("Account created successfully! Logging you in...");
-
-			localStorage.setItem("token", "mockSignupToken"); // Store a mock token to indicate logged-in status
-			// Redirect to the dashboard
-			navigate("/dashboard");
-		} else {
-			alert("Please enter both username and password to sign up.");
-		}
+	const redirectToSignup = () => {
+		navigate("/signup");
 	};
 
 	return (
@@ -50,6 +40,11 @@ export const Home = () => {
 							<div className="flex flex-col gap-2 sm:flex-row">
 								<button className="inline-flex h-10 items-center justify-center rounded-md bg-black px-8 text-sm font-medium text-white shadow transition-colors hover:bg-black/90">
 									<Link to="/dashboard">Get Started</Link>
+								</button>
+								<button
+									onClick={redirectToSignup}
+									className="inline-flex h-10 items-center justify-center rounded-md bg-gray-500 px-8 text-sm font-medium text-white shadow transition-colors hover:bg-gray-600">
+									New user? Sign up
 								</button>
 							</div>
 						</div>
