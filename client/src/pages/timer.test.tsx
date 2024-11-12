@@ -1,8 +1,8 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import "@testing-library/jest-dom"; // Add this import!
+import "@testing-library/jest-dom";
 import { BrowserRouter } from "react-router-dom";
 import { Timer } from "./timer";
-
+//"test": "react-scripts test --watchAll --testMatch **/src/**/*.test.tsx", in package.json
 // Mock ALL imports from Timer component
 jest.mock("../styles/Timer.css", () => ({}));
 jest.mock("../App.css", () => ({}));
