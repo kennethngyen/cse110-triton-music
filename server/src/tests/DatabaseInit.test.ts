@@ -11,6 +11,6 @@ describe("Add one user to User table, then get", () => {
     });
     test("should pull users correctly", async () => {
         const allUsers = await db.select().from(usersTable);
-        expect(allUsers.length).toBeGreaterThan(1);
+        expect(allUsers.length).toBeGreaterThan(0);
     });
 });
