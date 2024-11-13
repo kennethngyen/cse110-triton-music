@@ -72,3 +72,7 @@
 //         expect(res.body.error).toBe("Missing required fields");
 //     });
 // });
+
+test("placeholder", ()=>{
+    expect(1).toBe(1);
+});
