@@ -26,7 +26,7 @@ export async function registerUser(name: string, email: string, password: string
       .insert(auth)
       .values({
         email: email,
-        password: hashedPassword,
+        passwordHash: hashedPassword,
       })
       .returning({
         id: auth.id,
@@ -54,7 +54,7 @@ export async function loginUser(email: string, password: string) {
   }
 
   // Compare the provided password with the stored hash
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
   if (!isPasswordValid) {
     throw new Error('Invalid email or password');

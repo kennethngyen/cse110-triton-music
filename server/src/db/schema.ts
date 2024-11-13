@@ -24,7 +24,7 @@ export const auth = sqliteTable("auth", {
         .notNull()
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
-    password: text().notNull(),
+    passwordHash: text().notNull(),
     email: text().notNull().unique()
 });
 
