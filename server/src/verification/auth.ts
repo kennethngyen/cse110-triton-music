@@ -45,8 +45,8 @@ export async function loginUser(email: string, password: string) {
   // Retrieve the user from the database
   const user = await db
     .select()
-    .from(usersTable)
-    .where(eq(usersTable.email, email))
+    .from(auth)
+    .where(eq(auth.email, email))
     .get();
 
   if (!user) {
@@ -54,7 +54,7 @@ export async function loginUser(email: string, password: string) {
   }
 
   // Compare the provided password with the stored hash
-  const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+  const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
     throw new Error('Invalid email or password');
