@@ -18,3 +18,14 @@ export const usersTable = sqliteTable("users", {
     name: text().notNull(),
     email: text().notNull().unique(),
 });
+
+export const auth = sqliteTable("auth", {
+    id: text("id", { length: 255 })
+        .notNull()
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    password: text().notNull(),
+    email: text().notNull().unique()
+});
+
+  
