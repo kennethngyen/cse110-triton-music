@@ -8,16 +8,16 @@ export const Home = () => {
   const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
-    // handle form submission
-    e.preventDefault();
-    if (username && password) {
-      localStorage.setItem("token", "mockToken"); // simulate auth state
-      navigate("/dashboard");
-    } else {
-      alert("Please enter both username and password.");
-    }
-  };
+	const handleLogin = (e: React.FormEvent) => {
+		// handle form submission
+		e.preventDefault();
+		if (username && password) {
+			localStorage.setItem("token", "mockToken"); // simulate auth state
+			navigate("/dashboard");
+		} else {
+			alert("Please enter both username and password.");
+		}
+	};
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();

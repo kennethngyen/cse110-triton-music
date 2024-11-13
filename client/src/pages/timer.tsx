@@ -1,13 +1,14 @@
-import { useState, useEffect } from "react";
 import "../styles/Timer.css";
-import React, { ChangeEventHandler } from "react";
+import React, { ChangeEventHandler, useState, useEffect } from "react";
 import "../App.css";
+
 
 interface TimerSettings {
   pomodoro: number;
   shortBreak: number;
   longBreak: number;
 }
+
 
 export function Timer() {
   const [minutes, setMinutes] = useState(25);

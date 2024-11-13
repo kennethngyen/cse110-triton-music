@@ -1,4 +1,4 @@
-import "../App.css";
+import "../profile-page.css";
 
 import { useParams } from "react-router-dom";
 import { useState } from "react";
