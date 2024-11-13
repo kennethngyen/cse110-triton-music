@@ -4,11 +4,11 @@ import { BrowserRouter } from "react-router-dom";
 import { Timer } from "./timer";
 //"test": "react-scripts test --watchAll --testMatch **/src/**/*.test.tsx", in package.json
 // Mock ALL imports from Timer component
-jest.mock("../styles/Timer.css", () => ({}));
-jest.mock("../App.css", () => ({}));
-jest.mock("../styles/index.css", () => ({}));
-jest.mock("../App", () => ({}));
-jest.mock("../index", () => ({}));
+// jest.mock("../styles/Timer.css", () => ({}));
+// jest.mock("../App.css", () => ({}));
+// jest.mock("../styles/index.css", () => ({}));
+// jest.mock("../App", () => ({}));
+// jest.mock("../index", () => ({}));
 
 describe("Timer Component", () => {
   const renderTimer = () => {

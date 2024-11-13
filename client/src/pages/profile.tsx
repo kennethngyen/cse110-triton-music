@@ -1,5 +1,3 @@
-import "../App"
-import "../index"
 import "../App.css";
 
 import { useParams } from "react-router-dom";
@@ -9,7 +7,9 @@ export function Profile() {
   const { name } = useParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [description, setDescription] = useState("");
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleDescriptionChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     setDescription(e.target.value);
   };
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,7 +17,7 @@ export function Profile() {
   };
 
   return (
-	<div className="profile-page">
+    <div className="profile-page">
       <div className="profile-body">
         <div className="profile-info">
           <div className="profile-picture">
@@ -57,7 +57,7 @@ export function Profile() {
               </li>
             ))}
           </ul>
-		  {/* Search Bar for Friends */}
+          {/* Search Bar for Friends */}
           <div className="friend-search">
             <input
               type="text"

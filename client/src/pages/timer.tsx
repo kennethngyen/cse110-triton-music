@@ -1,5 +1,3 @@
-import "../App";
-import "../index";
 import { useState, useEffect } from "react";
 import "../styles/Timer.css";
 import React, { ChangeEventHandler } from "react";
