@@ -8,7 +8,7 @@ export function createSpotifyEndpoints(app: any, state: string) {
     });
 
     // callback
-    app.get("/callback", (req: Request, res: Response, state: string) => {
+    app.get("/callback", (req: Request, res: Response) => {
         requestAccessToken(req, res, state);
     });
 }

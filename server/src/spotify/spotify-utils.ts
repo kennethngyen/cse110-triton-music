@@ -72,11 +72,11 @@ export async function requestAccessToken(
             "Content-Type": "application/x-www-form-urlencoded",
             "Authorization": "Basic " + (Buffer.from(process.env.CLIENT_ID + ":" + process.env.CLIENT_SECRET).toString("base64")),
         },
-        body: JSON.stringify({
-            code: code,
+        body: new URLSearchParams({
+            code: code as string,
             redirect_uri: SPOTIFY_AUTH_REDIRECT,
             grant_type: "authorization_code",
-        }),
+        }).toString(),
     });
 
     if (!response.ok) {
@@ -92,10 +92,11 @@ export async function requestAccessToken(
      * refresh_token:   <--- TODO: use this to keep getting new access tokens
      */
 
-    const accessToken = response.json().then((jsonResponse) => {
-    	return jsonResponse.access_token;
-	});
+    const jsonResponse = await response.json();
+    const accessToken = jsonResponse.access_token;
 
     console.log(accessToken);
     // TODO, store the access_token and refresh_token in the database:
+
+    res.status(200).send(accessToken);
 }

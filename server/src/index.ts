@@ -9,7 +9,8 @@ import { generateRandomString } from "./misc/random-query";
 const app = express();
 const port = 8080;
 
-let state = generateRandomString(16);
+// TODO: Allow the state to change periodically
+const state = generateRandomString(16);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
