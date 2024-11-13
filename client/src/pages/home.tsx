@@ -4,13 +4,13 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-
 export const Home = () => {
 	const [username, setUsername] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 	const navigate = useNavigate();
 
-	const handleLogin = (e: React.FormEvent) => { // handle form submission
+	const handleLogin = (e: React.FormEvent) => {
+		// handle form submission
 		e.preventDefault();
 		if (username && password) {
 			localStorage.setItem("token", "mockToken"); // simulate auth state
@@ -82,4 +82,3 @@ export const Home = () => {
 		</div>
 	);
 };
-
