@@ -13,6 +13,9 @@ jobs:
     defaults:
       run:
         working-directory: ./client
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - name: Install Client Dependencies
@@ -26,6 +29,9 @@ jobs:
     defaults:
       run:
         working-directory: ./server
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_AUTH_TOKEN: ${{ secrets.DATABASE_AUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - name: Install Server Dependencies
