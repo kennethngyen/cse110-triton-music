@@ -74,9 +74,7 @@
   }
   
 
-  
   .song-comments {
-    display: inline-block;
     background-color: rgb(199, 194, 194);
     color: black;
     width: 900px;
@@ -85,7 +83,6 @@
     font-weight: bold;
     padding: 20px;
   }
-  
 
     
   .music-picker-btn {
@@ -152,6 +149,7 @@
   
   }
 
+
   .search-input {
     width: 100%;
     padding: 10px;
@@ -162,4 +160,5 @@
     padding-left: 40px;
     z-index: 10000;
   }
+
   

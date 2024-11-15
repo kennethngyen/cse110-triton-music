@@ -3,6 +3,7 @@ import "../styles/music-feed-page.css";
 import { useState } from "react";
 
 export const MusicFeed = () => {
+
 	const [showSettings, setShowSettings] = useState(false);
   	const [showSongSelect, setShowSongSelect] = useState(false);
   	const [searchQuery, setSearchQuery] = useState("");
@@ -41,6 +42,7 @@ export const MusicFeed = () => {
 										Choose music
 										</button>
 									<button className= "share-button"> Share </button>
+
 							</div>
 						</li>
 					</div>
