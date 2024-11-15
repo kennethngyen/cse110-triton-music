@@ -73,7 +73,7 @@
     align-self: center;
   }
   
-  input[type=text] {
+  /*input[type=text] {
     background-color: rgb(199, 194, 194);
     color: black;
     width: 900px;
@@ -81,10 +81,17 @@
     margin-bottom: 20px;
     font-weight: bold;
     padding: 20px;
-  }
+  }*/
   
   .song-comments {
     display: inline-block;
+    background-color: rgb(199, 194, 194);
+    color: black;
+    width: 900px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    padding: 20px;
   }
   
   .music-picker-btn {
@@ -149,5 +156,16 @@
     right: -400px;
     top: -50px;
   
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    background-color: #e0e0e0;
+    font-size: 16px;
+    padding-left: 40px;
+    z-index: 10000;
   }
   
