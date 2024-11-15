@@ -1,8 +1,6 @@
 import { Link, useParams } from "react-router-dom";
-import "../music-feed-page.css";
+import "../styles/music-feed-page.css";
 import { useState } from "react";
-
-
 
 export const MusicFeed = () => {
 	const [showSettings, setShowSettings] = useState(false);
@@ -46,18 +44,27 @@ export const MusicFeed = () => {
 							</div>
 						</li>
 					</div>
-					{["Friend A is Listening to...", 
-					"Friend B is Listening to...", 
-					"Friend C is Listening to..."].map((friend) => (
-					<li key={friend} className="friend-item">
-						<div className="friend-info">
-						<p>{friend}</p>
-						<p className = "friend-comment">
-							This song is fire! <a href="#" className="song-description">(Song Title)</a>
-							<img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg" className = "spotify-logo" alt="Spotify"></img>
-						</p>
-						</div>
-					</li>
+					{[
+						"Friend A is Listening to...",
+						"Friend B is Listening to...",
+						"Friend C is Listening to...",
+					].map((friend) => (
+						<li key={friend} className="friend-item">
+							<div className="friend-info">
+								<p>{friend}</p>
+								<p className="friend-comment">
+									This song is fire!{" "}
+									<a href="#" className="song-description">
+										(Song Title)
+									</a>
+									<img
+										src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg"
+										className="spotify-logo"
+										alt="Spotify"
+									></img>
+								</p>
+							</div>
+						</li>
 					))}
 				</ul>
 			</div>	
@@ -95,4 +102,4 @@ export const MusicFeed = () => {
 			)}
 	</div>
 	);
-}
+};

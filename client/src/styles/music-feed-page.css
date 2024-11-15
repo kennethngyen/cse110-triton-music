@@ -73,15 +73,7 @@
     align-self: center;
   }
   
-  /*input[type=text] {
-    background-color: rgb(199, 194, 194);
-    color: black;
-    width: 900px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    font-weight: bold;
-    padding: 20px;
-  }*/
+
   
   .song-comments {
     display: inline-block;
@@ -94,6 +86,8 @@
     padding: 20px;
   }
   
+
+    
   .music-picker-btn {
     position: relative;
     background-color: lightgray;
