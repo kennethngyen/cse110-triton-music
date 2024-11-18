@@ -6,7 +6,12 @@
     "test": "jest",
     "start": "ts-node src/index.ts",
     "build": "tsc",
-    "serve": "node dist/index.js"
+    "serve": "node dist/index.js",
+    "db:init": "drizzle-kit generate:sqlite",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "db:generate": "drizzle-kit generate",
+    "db:seed": "ts-node src/db/seed.ts"
   },
   "keywords": [],
   "author": "",
