@@ -35,3 +35,6 @@ export const users = [
         friends: [],
     },
 ];
+
+export const API_BASE_URL = "http://localhost:8080";
+export const SPOTIFY_AUTH_REDIRECT = API_BASE_URL + "/callback";
