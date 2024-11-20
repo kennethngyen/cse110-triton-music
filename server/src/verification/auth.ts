@@ -3,10 +3,9 @@ import bcrypt from 'bcrypt';
 import { db } from '../db/db';
 import { auth, usersTable } from '../db/schema'; // Import 'users' table
 import { eq } from 'drizzle-orm';
-import { v4 as uuidv4 } from 'uuid'; // UUID library for generating unique IDs
 
 // Function to register a new user
-export async function registerUser(name: string, email: string, password: string) {
+export async function registerUser(email: string, password: string): Promise<{ success: boolean; error?: string }> {
   try {
     // Check if the user already exists in 'auth' table
     const existingAuthUser = await db
@@ -15,23 +14,12 @@ export async function registerUser(name: string, email: string, password: string
       .where(eq(auth.email, email))
       .get();
 
-    // Check if the user already exists in 'users' table
-    const existingProfileUser = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.email, email))
-      .get();
-
-    if (existingAuthUser || existingProfileUser) {
-      throw new Error('User with this email already exists.');
+    if (existingAuthUser) {
+      return { success: false, error: 'User with this email already exists.' };
     }
 
-    // Hash the password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    // Generate a unique ID for the user
-    const userId = uuidv4();
 
     // Insert into 'auth' table
     await db.insert(auth).values({
@@ -39,22 +27,10 @@ export async function registerUser(name: string, email: string, password: string
       passwordHash: hashedPassword,
     });
 
-    // Insert into 'users' table
-    const [newUser] = await db
-      .insert(usersTable)
-      .values({
-        name: name,
-        email: email,
-      })
-      .returning({
-        name: usersTable.name,
-        email: usersTable.email,
-      });
-
-    return newUser;
+    return { success: true };
   } catch (error) {
     console.error('Error registering user:', error);
-    throw new Error('Unable to register user. Please try again later.');
+    return { success: false, error: 'Unable to register user. Please try again later.' };
   }
 }
 
@@ -72,7 +48,6 @@ export async function loginUser(email: string, password: string) {
       throw new Error('Invalid email or password');
     }
 
-    // Compare the provided password with the stored hash
     const isPasswordValid = await bcrypt.compare(password, authUser.passwordHash);
 
     if (!isPasswordValid) {

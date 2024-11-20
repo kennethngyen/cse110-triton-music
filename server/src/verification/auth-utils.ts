@@ -3,22 +3,27 @@ import { Request, Response } from 'express';
 import { registerUser, loginUser } from '../verification/auth';
 
 export async function registerUserHandler(req: Request, res: Response) {
-  const { name, email, password } = req.body;
+  const { email, password } = req.body;
 
   // Validate input
-  if (!name || !email || !password) {
+  if (!email || !password) {
     return res.status(400).send({ error: 'Missing required fields' });
   }
 
   try {
-    const newUser = await registerUser(name, email, password);
-    res.status(201).send({
-      message: 'User registered successfully.',
-      user: newUser,
-    });
-  } catch (error: any) {
+    const result = await registerUser(email, password);
+
+    if (result.success) {
+      return res.status(201).send({
+        message: 'User registered successfully.',
+      });
+    }
+
+    // Handle specific error from `registerUser`
+    return res.status(400).send({ error: result.error });
+  } catch (error) {
     console.error('Registration error:', error);
-    res.status(400).send({ error: error.message || 'Registration failed.' });
+    res.status(500).send({ error: 'Registration failed.' });
   }
 }
 
