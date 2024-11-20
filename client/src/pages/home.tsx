@@ -1,16 +1,15 @@
-import "../App";
 import "../App.css";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 
 export const Home = () => {
 	const [username, setUsername] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 	const navigate = useNavigate();
 
-	const handleLogin = (e: React.FormEvent) => { // handle form submission
+	const handleLogin = (e: React.FormEvent) => {
+		// handle form submission
 		e.preventDefault();
 		if (username && password) {
 			localStorage.setItem("token", "mockToken"); // simulate auth state
@@ -20,8 +19,18 @@ export const Home = () => {
 		}
 	};
 
-	const redirectToSignup = () => {
-		navigate("/signup");
+	const handleSignup = (e: React.FormEvent) => {
+		e.preventDefault();
+		if (username && password) {
+			// Simulate account creation by showing a message or storing data
+			alert("Account created successfully! Logging you in...");
+
+			localStorage.setItem("token", "mockSignupToken"); // Store a mock token to indicate logged-in status
+			// Redirect to the dashboard
+			navigate("/dashboard");
+		} else {
+			alert("Please enter both username and password to sign up.");
+		}
 	};
 
 	return (
@@ -40,11 +49,6 @@ export const Home = () => {
 							<div className="flex flex-col gap-2 sm:flex-row">
 								<button className="inline-flex h-10 items-center justify-center rounded-md bg-black px-8 text-sm font-medium text-white shadow transition-colors hover:bg-black/90">
 									<Link to="/dashboard">Get Started</Link>
-								</button>
-								<button
-									onClick={redirectToSignup}
-									className="inline-flex h-10 items-center justify-center rounded-md bg-gray-500 px-8 text-sm font-medium text-white shadow transition-colors hover:bg-gray-600">
-									New user? Sign up
 								</button>
 							</div>
 						</div>
@@ -77,4 +81,3 @@ export const Home = () => {
 		</div>
 	);
 };
-
