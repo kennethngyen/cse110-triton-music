@@ -32,11 +32,9 @@ export async function loginUserHandler(req: Request, res: Response) {
 
   try {
     const user = await loginUser(email, password);
-    // Exclude passwordHash from the response
-    const { passwordHash, ...userWithoutPassword } = user;
     res.status(200).send({
       message: 'Login successful.',
-      user: userWithoutPassword,
+      user: user,
     });
   } catch (error: any) {
     console.error('Login error:', error);
