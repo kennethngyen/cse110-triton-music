@@ -35,7 +35,7 @@ export async function registerUser(email: string, password: string): Promise<{ s
 }
 
 // Function to login a user
-export async function loginUser(email: string, password: string) {
+export async function loginUser(email: string, password: string): Promise<{ success: boolean; user?: object; error?: string }> {
   try {
     // Retrieve the user from the 'auth' table
     const authUser = await db
@@ -45,36 +45,22 @@ export async function loginUser(email: string, password: string) {
       .get();
 
     if (!authUser) {
-      throw new Error('Invalid email or password');
+      return { success: false, error: 'Invalid email or password' };
     }
 
+    // Validate the password
     const isPasswordValid = await bcrypt.compare(password, authUser.passwordHash);
 
     if (!isPasswordValid) {
-      throw new Error('Invalid email or password');
+      return { success: false, error: 'Invalid email or password' };
     }
 
-    // Retrieve the user's profile from the 'users' table
-    const userProfile = await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.id, authUser.id))
-      .get();
-
-    if (!userProfile) {
-      throw new Error('User profile not found.');
-    }
-
-    // Combine authUser and userProfile (excluding passwordHash)
+    // Exclude the passwordHash before returning user details
     const { passwordHash, ...authUserWithoutPassword } = authUser;
-    const user = {
-      ...authUserWithoutPassword,
-      ...userProfile,
-    };
 
-    return user;
+    return { success: true, user: authUserWithoutPassword };
   } catch (error) {
     console.error('Error logging in user:', error);
-    throw new Error('Unable to login. Please try again later.');
+    return { success: false, error: 'Unable to login. Please try again later.' };
   }
 }
