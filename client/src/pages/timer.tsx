@@ -2,36 +2,106 @@ import "../styles/Timer.css";
 import React, { ChangeEventHandler, useState, useEffect } from "react";
 import "../App.css";
 
-
 interface TimerSettings {
   pomodoro: number;
   shortBreak: number;
   longBreak: number;
 }
 
+interface TimerState {
+  minutes: number;
+  seconds: number;
+  isActive: boolean;
+  tasks: string[];
+  currentMode: string;
+  settings: TimerSettings;
+  selectedSong: string;
+}
 
 export function Timer() {
-  const [minutes, setMinutes] = useState(25);
-  const [seconds, setSeconds] = useState(0);
-  const [isActive, setIsActive] = useState(false);
-  const [tasks, setTasks] = useState<string[]>([]);
+  const getDefaultState = (): TimerState => ({
+    minutes: 25,
+    seconds: 0,
+    isActive: false,
+    tasks: [],
+    currentMode: "Pomodoro",
+    settings: {
+      pomodoro: 25,
+      shortBreak: 5,
+      longBreak: 15,
+    },
+    selectedSong: "",
+  });
+
+  // Load initial state from localStorage or use defaults
+  const loadInitialState = (): TimerState => {
+    const savedState = localStorage.getItem("timerState");
+    if (savedState) {
+      try {
+        const parsed = JSON.parse(savedState);
+        return {
+          minutes: parsed.minutes || 25,
+          seconds: parsed.seconds || 0,
+          isActive: false, // Always start paused
+          tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [], // Ensure tasks is always an array
+          currentMode: parsed.currentMode || "Pomodoro",
+          settings: parsed.settings || {
+            pomodoro: 25,
+            shortBreak: 5,
+            longBreak: 15,
+          },
+          selectedSong: parsed.selectedSong || "",
+        };
+      } catch (e) {
+        console.error("Error parsing saved state:", e);
+        return getDefaultState();
+      }
+    }
+    return getDefaultState();
+  };
+
+  // Initialize state with persisted data
+  const [minutes, setMinutes] = useState(loadInitialState().minutes);
+  const [seconds, setSeconds] = useState(loadInitialState().seconds);
+  const [isActive, setIsActive] = useState(loadInitialState().isActive);
+  const [tasks, setTasks] = useState<string[]>(loadInitialState().tasks);
   const [newTask, setNewTask] = useState("");
-  const [currentMode, setCurrentMode] = useState("Pomodoro");
+  const [currentMode, setCurrentMode] = useState(
+    loadInitialState().currentMode
+  );
   const [showSettings, setShowSettings] = useState(false);
   const [showSongSelect, setShowSongSelect] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSong, setSelectedSong] = useState("");
-  const [settings, setSettings] = useState<TimerSettings>({
-    pomodoro: 25,
-    shortBreak: 5,
-    longBreak: 15,
-  });
+  const [selectedSong, setSelectedSong] = useState(
+    loadInitialState().selectedSong
+  );
+  const [settings, setSettings] = useState<TimerSettings>(
+    loadInitialState().settings
+  );
 
   const songs = [
     { id: 1, name: "Song A" },
     { id: 2, name: "Song B" },
     { id: 3, name: "Song C" },
   ];
+
+  // Save state to localStorage whenever relevant states change
+  useEffect(() => {
+    try {
+      const stateToSave: TimerState = {
+        minutes,
+        seconds,
+        isActive,
+        tasks,
+        currentMode,
+        settings,
+        selectedSong,
+      };
+      localStorage.setItem("timerState", JSON.stringify(stateToSave));
+    } catch (e) {
+      console.error("Error saving state:", e);
+    }
+  }, [minutes, seconds, isActive, tasks, currentMode, settings, selectedSong]);
 
   const getContainerClassName = () => {
     let baseClass = "timer-container";
@@ -65,14 +135,13 @@ export function Timer() {
 
   const addTask = () => {
     if (newTask.trim()) {
-      setTasks([...tasks, newTask.trim()]);
+      setTasks((currentTasks) => [...currentTasks, newTask.trim()]);
       setNewTask("");
     }
   };
 
   const deleteTask = (index: number) => {
-    const newTasks = tasks.filter((_, i) => i !== index);
-    setTasks(newTasks);
+    setTasks((currentTasks) => currentTasks.filter((_, i) => i !== index));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -104,6 +173,7 @@ export function Timer() {
     setIsActive(false);
   };
 
+  // Timer logic
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined = undefined;
 
@@ -112,6 +182,9 @@ export function Timer() {
         if (seconds === 0) {
           if (minutes === 0) {
             setIsActive(false);
+            // Optional: Play sound when timer completes
+            const audio = new Audio("/path-to-your-sound.mp3");
+            audio.play().catch((e) => console.log("Audio play failed:", e));
           } else {
             setMinutes(minutes - 1);
             setSeconds(59);
@@ -141,19 +214,25 @@ export function Timer() {
           <div className="mode-buttons">
             <button
               onClick={() => selectMode("Pomodoro")}
-              className="mode-button"
+              className={`mode-button ${
+                currentMode === "Pomodoro" ? "active" : ""
+              }`}
             >
               Pomodoro
             </button>
             <button
               onClick={() => selectMode("Short Break")}
-              className="mode-button"
+              className={`mode-button ${
+                currentMode === "Short Break" ? "active" : ""
+              }`}
             >
               Short Break
             </button>
             <button
               onClick={() => selectMode("Long Break")}
-              className="mode-button"
+              className={`mode-button ${
+                currentMode === "Long Break" ? "active" : ""
+              }`}
             >
               Long Break
             </button>
@@ -179,17 +258,18 @@ export function Timer() {
 
         <div className="tasks-section">
           <div>Tasks:</div>
-          {tasks.map((task, index) => (
-            <div key={index} className="task-item">
-              <span>{task}</span>
-              <button
-                className="delete-button"
-                onClick={() => deleteTask(index)}
-              >
-                ×
-              </button>
-            </div>
-          ))}
+          {Array.isArray(tasks) &&
+            tasks.map((task, index) => (
+              <div key={index} className="task-item">
+                <span>{task}</span>
+                <button
+                  className="delete-button"
+                  onClick={() => deleteTask(index)}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
           <div className="task-input-container">
             <input
               type="text"
@@ -223,16 +303,20 @@ export function Timer() {
               />
             </div>
             <div className="songs-list">
-              {songs.map((song) => (
-                <button
-                  key={song.id}
-                  className="song-item"
-                  onClick={() => selectSong(song.name)}
-                >
-                  <span className="music-note">♪</span>
-                  <span className="song-name">{song.name}</span>
-                </button>
-              ))}
+              {songs
+                .filter((song) =>
+                  song.name.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .map((song) => (
+                  <button
+                    key={song.id}
+                    className="song-item"
+                    onClick={() => selectSong(song.name)}
+                  >
+                    <span className="music-note">♪</span>
+                    <span className="song-name">{song.name}</span>
+                  </button>
+                ))}
             </div>
           </div>
         </>
