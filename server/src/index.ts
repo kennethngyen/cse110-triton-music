@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { Request, Response } from "express";
 import { createFeedEndpoints } from "./feed/feed-endpoints";
 import { createAccountEndpoints } from "./account/account-endpoints";
@@ -9,6 +10,9 @@ import { generateRandomString } from "./misc/random-query";
 
 const app = express();
 const port = 8080;
+
+app.use(cors());
+app.use(express.json()); // IMPORTANT: parses POST request JSON data
 
 // TODO: Allow the state to change periodically
 const state = generateRandomString(16);
