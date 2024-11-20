@@ -4,7 +4,7 @@ import { Navbar } from "./components/navbar";
 import { Home } from "./pages/home";
 import { Timer } from "./pages/timer";
 import { Profile } from "./pages/profile";
-
+import { Signup } from "./pages/signup";
 import { MusicFeed } from "./pages/music-feed-page";
 
 
@@ -19,6 +19,7 @@ const App = () => {
         <Route path="/music-feed" element={<MusicFeed/>} />
         <Route path="/study" element={<Timer />} />
         <Route path="/profile/:name" element={<Profile />} />
+        <Route path="/signup" element={<Signup />} /> 
       </Routes>
     </div>
   );
