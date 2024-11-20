@@ -1,5 +1,5 @@
 import "../styles/Timer.css";
-import React, { ChangeEventHandler, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "../App.css";
 
 interface TimerSettings {
@@ -9,8 +9,7 @@ interface TimerSettings {
 }
 
 interface TimerState {
-  minutes: number;
-  seconds: number;
+  targetTime: number | null; // Timestamp when timer should complete
   isActive: boolean;
   tasks: string[];
   currentMode: string;
@@ -20,8 +19,7 @@ interface TimerState {
 
 export function Timer() {
   const getDefaultState = (): TimerState => ({
-    minutes: 25,
-    seconds: 0,
+    targetTime: null,
     isActive: false,
     tasks: [],
     currentMode: "Pomodoro",
@@ -33,17 +31,15 @@ export function Timer() {
     selectedSong: "",
   });
 
-  // Load initial state from localStorage or use defaults
   const loadInitialState = (): TimerState => {
     const savedState = localStorage.getItem("timerState");
     if (savedState) {
       try {
         const parsed = JSON.parse(savedState);
         return {
-          minutes: parsed.minutes || 25,
-          seconds: parsed.seconds || 0,
-          isActive: false, // Always start paused
-          tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [], // Ensure tasks is always an array
+          targetTime: parsed.targetTime,
+          isActive: parsed.targetTime ? true : false,
+          tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
           currentMode: parsed.currentMode || "Pomodoro",
           settings: parsed.settings || {
             pomodoro: 25,
@@ -60,24 +56,36 @@ export function Timer() {
     return getDefaultState();
   };
 
-  // Initialize state with persisted data
-  const [minutes, setMinutes] = useState(loadInitialState().minutes);
-  const [seconds, setSeconds] = useState(loadInitialState().seconds);
-  const [isActive, setIsActive] = useState(loadInitialState().isActive);
-  const [tasks, setTasks] = useState<string[]>(loadInitialState().tasks);
-  const [newTask, setNewTask] = useState("");
-  const [currentMode, setCurrentMode] = useState(
-    loadInitialState().currentMode
+  const initialState = loadInitialState();
+
+  const [targetTime, setTargetTime] = useState<number | null>(
+    initialState.targetTime
   );
+  const [isActive, setIsActive] = useState(initialState.isActive);
+  const [tasks, setTasks] = useState<string[]>(initialState.tasks);
+  const [newTask, setNewTask] = useState("");
+  const [currentMode, setCurrentMode] = useState(initialState.currentMode);
   const [showSettings, setShowSettings] = useState(false);
   const [showSongSelect, setShowSongSelect] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSong, setSelectedSong] = useState(
-    loadInitialState().selectedSong
-  );
+  const [selectedSong, setSelectedSong] = useState(initialState.selectedSong);
   const [settings, setSettings] = useState<TimerSettings>(
-    loadInitialState().settings
+    initialState.settings
   );
+  const [displayMinutes, setDisplayMinutes] = useState(() => {
+    if (initialState.targetTime) {
+      const remaining = initialState.targetTime - Date.now();
+      return Math.max(0, Math.floor(remaining / (1000 * 60)));
+    }
+    return initialState.settings.pomodoro;
+  });
+  const [displaySeconds, setDisplaySeconds] = useState(() => {
+    if (initialState.targetTime) {
+      const remaining = initialState.targetTime - Date.now();
+      return Math.max(0, Math.floor((remaining % (1000 * 60)) / 1000));
+    }
+    return 0;
+  });
 
   const songs = [
     { id: 1, name: "Song A" },
@@ -85,12 +93,10 @@ export function Timer() {
     { id: 3, name: "Song C" },
   ];
 
-  // Save state to localStorage whenever relevant states change
   useEffect(() => {
     try {
       const stateToSave: TimerState = {
-        minutes,
-        seconds,
+        targetTime,
         isActive,
         tasks,
         currentMode,
@@ -101,7 +107,7 @@ export function Timer() {
     } catch (e) {
       console.error("Error saving state:", e);
     }
-  }, [minutes, seconds, isActive, tasks, currentMode, settings, selectedSong]);
+  }, [targetTime, isActive, tasks, currentMode, settings, selectedSong]);
 
   const getContainerClassName = () => {
     let baseClass = "timer-container";
@@ -112,26 +118,73 @@ export function Timer() {
 
   const selectMode = (mode: string) => {
     setIsActive(false);
+    setTargetTime(null);
     setCurrentMode(mode);
+
+    let minutes;
     switch (mode) {
-      case "Pomodoro":
-        setMinutes(settings.pomodoro);
-        break;
       case "Short Break":
-        setMinutes(settings.shortBreak);
+        minutes = settings.shortBreak;
         break;
       case "Long Break":
-        setMinutes(settings.longBreak);
+        minutes = settings.longBreak;
         break;
       default:
-        setMinutes(settings.pomodoro);
+        minutes = settings.pomodoro;
     }
-    setSeconds(0);
+    setDisplayMinutes(minutes);
+    setDisplaySeconds(0);
   };
 
   const toggle = () => {
+    if (!isActive) {
+      const currentTimeInMs = Date.now();
+      const durationInMs = (displayMinutes * 60 + displaySeconds) * 1000;
+      setTargetTime(currentTimeInMs + durationInMs);
+    } else {
+      if (targetTime) {
+        const remainingTime = targetTime - Date.now();
+        const remainingMinutes = Math.floor(remainingTime / (1000 * 60));
+        const remainingSeconds = Math.floor(
+          (remainingTime % (1000 * 60)) / 1000
+        );
+        setDisplayMinutes(Math.max(0, remainingMinutes));
+        setDisplaySeconds(Math.max(0, remainingSeconds));
+        setTargetTime(null);
+      }
+    }
     setIsActive(!isActive);
   };
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    if (isActive && targetTime) {
+      intervalId = setInterval(() => {
+        const now = Date.now();
+        const remaining = targetTime - now;
+
+        if (remaining <= 0) {
+          setIsActive(false);
+          setTargetTime(null);
+          setDisplayMinutes(0);
+          setDisplaySeconds(0);
+
+          const audio = new Audio("/path-to-your-sound.mp3");
+          audio.play().catch((e) => console.log("Audio play failed:", e));
+        } else {
+          setDisplayMinutes(Math.floor(remaining / (1000 * 60)));
+          setDisplaySeconds(Math.floor((remaining % (1000 * 60)) / 1000));
+        }
+      }, 100);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isActive, targetTime]);
 
   const addTask = () => {
     if (newTask.trim()) {
@@ -158,47 +211,22 @@ export function Timer() {
   const updateSettings = (newSettings: TimerSettings) => {
     setSettings(newSettings);
     setShowSettings(false);
+    setIsActive(false);
+    setTargetTime(null);
+
     switch (currentMode) {
       case "Pomodoro":
-        setMinutes(newSettings.pomodoro);
+        setDisplayMinutes(newSettings.pomodoro);
         break;
       case "Short Break":
-        setMinutes(newSettings.shortBreak);
+        setDisplayMinutes(newSettings.shortBreak);
         break;
       case "Long Break":
-        setMinutes(newSettings.longBreak);
+        setDisplayMinutes(newSettings.longBreak);
         break;
     }
-    setSeconds(0);
-    setIsActive(false);
+    setDisplaySeconds(0);
   };
-
-  // Timer logic
-  useEffect(() => {
-    let interval: NodeJS.Timeout | undefined = undefined;
-
-    if (isActive) {
-      interval = setInterval(() => {
-        if (seconds === 0) {
-          if (minutes === 0) {
-            setIsActive(false);
-            // Optional: Play sound when timer completes
-            const audio = new Audio("/path-to-your-sound.mp3");
-            audio.play().catch((e) => console.log("Audio play failed:", e));
-          } else {
-            setMinutes(minutes - 1);
-            setSeconds(59);
-          }
-        } else {
-          setSeconds(seconds - 1);
-        }
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isActive, minutes, seconds]);
 
   return (
     <div className={getContainerClassName()}>
@@ -239,8 +267,8 @@ export function Timer() {
           </div>
 
           <div className="timer-display">
-            {String(minutes).padStart(2, "0")}:
-            {String(seconds).padStart(2, "0")}
+            {String(displayMinutes).padStart(2, "0")}:
+            {String(displaySeconds).padStart(2, "0")}
           </div>
 
           <div className="control-buttons">
