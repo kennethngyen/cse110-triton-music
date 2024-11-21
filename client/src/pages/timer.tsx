@@ -1,7 +1,6 @@
 import "../styles/Timer.css";
-import React, { ChangeEventHandler, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "../App.css";
-
 
 interface TimerSettings {
   pomodoro: number;
@@ -9,22 +8,83 @@ interface TimerSettings {
   longBreak: number;
 }
 
+interface TimerState {
+  targetTime: number | null; // Timestamp when timer should complete
+  isActive: boolean;
+  tasks: string[];
+  currentMode: string;
+  settings: TimerSettings;
+  selectedSong: string;
+}
 
 export function Timer() {
-  const [minutes, setMinutes] = useState(25);
-  const [seconds, setSeconds] = useState(0);
-  const [isActive, setIsActive] = useState(false);
-  const [tasks, setTasks] = useState<string[]>([]);
+  const getDefaultState = (): TimerState => ({
+    targetTime: null,
+    isActive: false,
+    tasks: [],
+    currentMode: "Pomodoro",
+    settings: {
+      pomodoro: 25,
+      shortBreak: 5,
+      longBreak: 15,
+    },
+    selectedSong: "",
+  });
+
+  const loadInitialState = (): TimerState => {
+    const savedState = localStorage.getItem("timerState");
+    if (savedState) {
+      try {
+        const parsed = JSON.parse(savedState);
+        return {
+          targetTime: parsed.targetTime,
+          isActive: parsed.targetTime ? true : false,
+          tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
+          currentMode: parsed.currentMode || "Pomodoro",
+          settings: parsed.settings || {
+            pomodoro: 25,
+            shortBreak: 5,
+            longBreak: 15,
+          },
+          selectedSong: parsed.selectedSong || "",
+        };
+      } catch (e) {
+        console.error("Error parsing saved state:", e);
+        return getDefaultState();
+      }
+    }
+    return getDefaultState();
+  };
+
+  const initialState = loadInitialState();
+
+  const [targetTime, setTargetTime] = useState<number | null>(
+    initialState.targetTime
+  );
+  const [isActive, setIsActive] = useState(initialState.isActive);
+  const [tasks, setTasks] = useState<string[]>(initialState.tasks);
   const [newTask, setNewTask] = useState("");
-  const [currentMode, setCurrentMode] = useState("Pomodoro");
+  const [currentMode, setCurrentMode] = useState(initialState.currentMode);
   const [showSettings, setShowSettings] = useState(false);
   const [showSongSelect, setShowSongSelect] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSong, setSelectedSong] = useState("");
-  const [settings, setSettings] = useState<TimerSettings>({
-    pomodoro: 25,
-    shortBreak: 5,
-    longBreak: 15,
+  const [selectedSong, setSelectedSong] = useState(initialState.selectedSong);
+  const [settings, setSettings] = useState<TimerSettings>(
+    initialState.settings
+  );
+  const [displayMinutes, setDisplayMinutes] = useState(() => {
+    if (initialState.targetTime) {
+      const remaining = initialState.targetTime - Date.now();
+      return Math.max(0, Math.floor(remaining / (1000 * 60)));
+    }
+    return initialState.settings.pomodoro;
+  });
+  const [displaySeconds, setDisplaySeconds] = useState(() => {
+    if (initialState.targetTime) {
+      const remaining = initialState.targetTime - Date.now();
+      return Math.max(0, Math.floor((remaining % (1000 * 60)) / 1000));
+    }
+    return 0;
   });
 
   const songs = [
@@ -32,6 +92,22 @@ export function Timer() {
     { id: 2, name: "Song B" },
     { id: 3, name: "Song C" },
   ];
+
+  useEffect(() => {
+    try {
+      const stateToSave: TimerState = {
+        targetTime,
+        isActive,
+        tasks,
+        currentMode,
+        settings,
+        selectedSong,
+      };
+      localStorage.setItem("timerState", JSON.stringify(stateToSave));
+    } catch (e) {
+      console.error("Error saving state:", e);
+    }
+  }, [targetTime, isActive, tasks, currentMode, settings, selectedSong]);
 
   const getContainerClassName = () => {
     let baseClass = "timer-container";
@@ -42,37 +118,83 @@ export function Timer() {
 
   const selectMode = (mode: string) => {
     setIsActive(false);
+    setTargetTime(null);
     setCurrentMode(mode);
+
+    let minutes;
     switch (mode) {
-      case "Pomodoro":
-        setMinutes(settings.pomodoro);
-        break;
       case "Short Break":
-        setMinutes(settings.shortBreak);
+        minutes = settings.shortBreak;
         break;
       case "Long Break":
-        setMinutes(settings.longBreak);
+        minutes = settings.longBreak;
         break;
       default:
-        setMinutes(settings.pomodoro);
+        minutes = settings.pomodoro;
     }
-    setSeconds(0);
+    setDisplayMinutes(minutes);
+    setDisplaySeconds(0);
   };
 
   const toggle = () => {
+    if (!isActive) {
+      const currentTimeInMs = Date.now();
+      const durationInMs = (displayMinutes * 60 + displaySeconds) * 1000;
+      setTargetTime(currentTimeInMs + durationInMs);
+    } else {
+      if (targetTime) {
+        const remainingTime = targetTime - Date.now();
+        const remainingMinutes = Math.floor(remainingTime / (1000 * 60));
+        const remainingSeconds = Math.floor(
+          (remainingTime % (1000 * 60)) / 1000
+        );
+        setDisplayMinutes(Math.max(0, remainingMinutes));
+        setDisplaySeconds(Math.max(0, remainingSeconds));
+        setTargetTime(null);
+      }
+    }
     setIsActive(!isActive);
   };
 
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    if (isActive && targetTime) {
+      intervalId = setInterval(() => {
+        const now = Date.now();
+        const remaining = targetTime - now;
+
+        if (remaining <= 0) {
+          setIsActive(false);
+          setTargetTime(null);
+          setDisplayMinutes(0);
+          setDisplaySeconds(0);
+
+          const audio = new Audio("/path-to-your-sound.mp3");
+          audio.play().catch((e) => console.log("Audio play failed:", e));
+        } else {
+          setDisplayMinutes(Math.floor(remaining / (1000 * 60)));
+          setDisplaySeconds(Math.floor((remaining % (1000 * 60)) / 1000));
+        }
+      }, 100);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [isActive, targetTime]);
+
   const addTask = () => {
     if (newTask.trim()) {
-      setTasks([...tasks, newTask.trim()]);
+      setTasks((currentTasks) => [...currentTasks, newTask.trim()]);
       setNewTask("");
     }
   };
 
   const deleteTask = (index: number) => {
-    const newTasks = tasks.filter((_, i) => i !== index);
-    setTasks(newTasks);
+    setTasks((currentTasks) => currentTasks.filter((_, i) => i !== index));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -89,43 +211,22 @@ export function Timer() {
   const updateSettings = (newSettings: TimerSettings) => {
     setSettings(newSettings);
     setShowSettings(false);
+    setIsActive(false);
+    setTargetTime(null);
+
     switch (currentMode) {
       case "Pomodoro":
-        setMinutes(newSettings.pomodoro);
+        setDisplayMinutes(newSettings.pomodoro);
         break;
       case "Short Break":
-        setMinutes(newSettings.shortBreak);
+        setDisplayMinutes(newSettings.shortBreak);
         break;
       case "Long Break":
-        setMinutes(newSettings.longBreak);
+        setDisplayMinutes(newSettings.longBreak);
         break;
     }
-    setSeconds(0);
-    setIsActive(false);
+    setDisplaySeconds(0);
   };
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout | undefined = undefined;
-
-    if (isActive) {
-      interval = setInterval(() => {
-        if (seconds === 0) {
-          if (minutes === 0) {
-            setIsActive(false);
-          } else {
-            setMinutes(minutes - 1);
-            setSeconds(59);
-          }
-        } else {
-          setSeconds(seconds - 1);
-        }
-      }, 1000);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isActive, minutes, seconds]);
 
   return (
     <div className={getContainerClassName()}>
@@ -141,27 +242,33 @@ export function Timer() {
           <div className="mode-buttons">
             <button
               onClick={() => selectMode("Pomodoro")}
-              className="mode-button"
+              className={`mode-button ${
+                currentMode === "Pomodoro" ? "active" : ""
+              }`}
             >
               Pomodoro
             </button>
             <button
               onClick={() => selectMode("Short Break")}
-              className="mode-button"
+              className={`mode-button ${
+                currentMode === "Short Break" ? "active" : ""
+              }`}
             >
               Short Break
             </button>
             <button
               onClick={() => selectMode("Long Break")}
-              className="mode-button"
+              className={`mode-button ${
+                currentMode === "Long Break" ? "active" : ""
+              }`}
             >
               Long Break
             </button>
           </div>
 
           <div className="timer-display">
-            {String(minutes).padStart(2, "0")}:
-            {String(seconds).padStart(2, "0")}
+            {String(displayMinutes).padStart(2, "0")}:
+            {String(displaySeconds).padStart(2, "0")}
           </div>
 
           <div className="control-buttons">
@@ -179,17 +286,18 @@ export function Timer() {
 
         <div className="tasks-section">
           <div>Tasks:</div>
-          {tasks.map((task, index) => (
-            <div key={index} className="task-item">
-              <span>{task}</span>
-              <button
-                className="delete-button"
-                onClick={() => deleteTask(index)}
-              >
-                ×
-              </button>
-            </div>
-          ))}
+          {Array.isArray(tasks) &&
+            tasks.map((task, index) => (
+              <div key={index} className="task-item">
+                <span>{task}</span>
+                <button
+                  className="delete-button"
+                  onClick={() => deleteTask(index)}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
           <div className="task-input-container">
             <input
               type="text"
@@ -223,16 +331,20 @@ export function Timer() {
               />
             </div>
             <div className="songs-list">
-              {songs.map((song) => (
-                <button
-                  key={song.id}
-                  className="song-item"
-                  onClick={() => selectSong(song.name)}
-                >
-                  <span className="music-note">♪</span>
-                  <span className="song-name">{song.name}</span>
-                </button>
-              ))}
+              {songs
+                .filter((song) =>
+                  song.name.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .map((song) => (
+                  <button
+                    key={song.id}
+                    className="song-item"
+                    onClick={() => selectSong(song.name)}
+                  >
+                    <span className="music-note">♪</span>
+                    <span className="song-name">{song.name}</span>
+                  </button>
+                ))}
             </div>
           </div>
         </>
