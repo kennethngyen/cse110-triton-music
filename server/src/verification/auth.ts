@@ -1,7 +1,7 @@
 // auth.ts
 import bcrypt from 'bcrypt';
 import { db } from '../db/db';
-import { auth, usersTable } from '../db/schema'; // Import 'users' table
+import { auth} from '../db/schema'; // Import 'users' table
 import { eq } from 'drizzle-orm';
 
 // Function to register a new user
