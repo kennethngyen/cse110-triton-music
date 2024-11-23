@@ -2,6 +2,7 @@ import { Link, useParams, } from "react-router-dom";
 import "../styles/music-feed-page.css";
 import { useState, useEffect} from "react";
 
+
 const SPOTIFY_CLIENT_ID = process.env.CLIENT_ID as string;
 const SPOTIFY_CLIENT_SECRET = process.env.CLIENT_SECRET_ID as string;
 
