@@ -6,6 +6,7 @@ const SPOTIFY_CLIENT_ID = process.env.CLIENT_ID as string;
 const SPOTIFY_CLIENT_SECRET = process.env.CLIENT_SECRET_ID as string;
 
 
+
 export const MusicFeed = () => {
 
 	const [showSettings, setShowSettings] = useState(false);
