@@ -23,6 +23,7 @@ export function requestUserAuthorization(
 
     // scope is what the user is allowing us to access
     const scope = "user-read-private user-read-email playlist-read-private playlist-read-collaborative user-library read";
+    
 
     try {
         res.status(200).redirect(
