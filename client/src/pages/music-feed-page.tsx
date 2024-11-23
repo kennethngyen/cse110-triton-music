@@ -2,8 +2,8 @@ import { Link, useParams, } from "react-router-dom";
 import "../styles/music-feed-page.css";
 import { useState, useEffect} from "react";
 
-const CLIENT_ID = "b62260a3ef7c4085b1748b7fef3bd3d6";
-const CLIENT_SECRET = "c2c4e138e51c449cbc942a8e779885d3";
+const SPOTIFY_CLIENT_ID = process.env.CLIENT_ID as string;
+const SPOTIFY_CLIENT_SECRET = process.env.CLIENT_SECRET_ID as string;
 
 
 export const MusicFeed = () => {
@@ -22,11 +22,12 @@ export const MusicFeed = () => {
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded'
 			},
-			body: "grant_type=client_credentials&client_id=" + CLIENT_ID + '&client_secret=' + CLIENT_SECRET
+			body: "grant_type=client_credentials&client_id=" + SPOTIFY_CLIENT_ID + '&client_secret=' + SPOTIFY_CLIENT_SECRET
 		}
 		fetch('https://accounts.spotify.com/api/token', authParameters)
 			.then(result => result.json())
 			.then(data => setAccessToken(data.access_token))
+			console.log("string")
 	}, [])
 
 	//Search function
