@@ -10,39 +10,22 @@ export async function registerUserHandler(req: Request, res: Response) {
     return res.status(400).send({ error: 'Missing required fields' });
   }
 
-  try {
-    const result = await registerUser(email, password);
+  const result = await registerUser(email, password);
 
-    if (result.success) {
-      return res.status(201).send({
-        message: 'User registered successfully.',
-      });
-    }
-
-    // Handle specific error from `registerUser`
-    return res.status(400).send({ error: result.error });
-  } catch (error) {
-    console.error('Registration error:', error);
-    res.status(500).send({ error: 'Registration failed.' });
+  if (!result.success) {
+    return res.status(400).json({ error: result.error });
   }
+
+  res.status(201).json({ message: 'User registered successfully!' });
 }
 
 export async function loginUserHandler(req: Request, res: Response) {
   const { email, password } = req.body;
+  const result = await loginUser(email, password);
 
-  // Validate input
-  if (!email || !password) {
-    return res.status(400).send({ error: 'Missing required fields' });
+  if (!result.success) {
+    return res.status(401).json({ error: result.error });
   }
 
-  try {
-    const user = await loginUser(email, password);
-    res.status(200).send({
-      message: 'Login successful.',
-      user: user,
-    });
-  } catch (error: any) {
-    console.error('Login error:', error);
-    res.status(400).send({ error: error.message || 'Login failed.' });
-  }
+  res.status(200).json({ user: result.user, token: result.token });
 }
