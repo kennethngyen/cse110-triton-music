@@ -3,6 +3,10 @@ import bcrypt from 'bcrypt';
 import { db } from '../db/db';
 import { auth} from '../db/schema'; // Import 'users' table
 import { eq } from 'drizzle-orm';
+import jwt from 'jsonwebtoken';
+import { NextFunction } from 'express';
+
+const SECRET_KEY = process.env.SECRET_KEY || 'default_secret_key';
 
 // Function to register a new user
 export async function registerUser(email: string, password: string): Promise<{ success: boolean; error?: string }> {
@@ -35,9 +39,12 @@ export async function registerUser(email: string, password: string): Promise<{ s
 }
 
 // Function to login a user
-export async function loginUser(email: string, password: string): Promise<{ success: boolean; user?: object; error?: string }> {
+export async function loginUser(
+  email: string,
+  password: string
+): Promise<{ success: boolean; user?: object; token?: string; error?: string }> {
   try {
-    // Retrieve the user from the 'auth' table
+    // Retrieve the user
     const authUser = await db
       .select()
       .from(auth)
@@ -55,12 +62,20 @@ export async function loginUser(email: string, password: string): Promise<{ succ
       return { success: false, error: 'Invalid email or password' };
     }
 
-    // Exclude the passwordHash before returning user details
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: authUser.id, email: authUser.email }, // Payload
+      SECRET_KEY, // Secret key
+      { expiresIn: '1h' } // Options
+    );
+
+    // Exclude passwordHash from returned user details
     const { passwordHash, ...authUserWithoutPassword } = authUser;
 
-    return { success: true, user: authUserWithoutPassword };
+    return { success: true, user: authUserWithoutPassword, token };
   } catch (error) {
     console.error('Error logging in user:', error);
     return { success: false, error: 'Unable to login. Please try again later.' };
   }
 }
+
