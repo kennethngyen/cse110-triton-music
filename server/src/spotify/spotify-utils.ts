@@ -53,13 +53,16 @@ export async function requestAccessToken(
   const err = req.query.error;
 
   if (!state_) {
-    return res.status(400).send({ error: "Could not request access token" });
+    //return res.status(400).send({ error: "Could not request access token" });
+    return res.redirect(Reload_URL + "?error=missing_state");
   }
   if (!code) {
-    return res.status(400).send({ error: "" + err });
+    //return res.status(400).send({ error: "" + err });
+    return res.redirect(Reload_URL + "?error=" + (err || 'missing_code'));
   }
   if (state_ != state) {
-    return res.status(400).send({ error: "security threat; please try again" });
+   // return res.status(400).send({ error: "security threat; please try again" });
+   return res.redirect(Reload_URL + "?error=invalid_state");
   }
 
   // now try using the auth code to fetch the access token
@@ -82,7 +85,7 @@ export async function requestAccessToken(
 
   if (!response.ok) {
     //return res.status(400).send({ error: "Unable to fetch access token" });
-    res.redirect(Reload_URL + "?error=true");
+    return res.redirect(Reload_URL + "?error=token_error");
   }
 
   /**
@@ -104,7 +107,7 @@ export async function requestAccessToken(
 
   await updateRefreshTokenDB(process.env.EMAIL as string, refreshToken);
   //res.status(200).send({ access_token: accessToken, refresh_token: refreshToken });       
-  res.redirect(Reload_URL + "?success=true");
+  return res.redirect(Reload_URL + "?success=true");
 }
 
 export async function refreshAccessToken(
