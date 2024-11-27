@@ -1,13 +1,18 @@
 import express from "express";
+import cors from "cors";
 import { Request, Response } from "express";
 import { createFeedEndpoints } from "./feed/feed-endpoints";
 import { createAccountEndpoints } from "./account/account-endpoints";
+import { createAuthEndpoints } from "./verification/auth-endpoint";
 import { feedItems, users } from "./constants";
 import { createSpotifyEndpoints } from "./spotify/spotify-endpoints";
 import { generateRandomString } from "./misc/random-query";
 
 const app = express();
 const port = 8080;
+
+app.use(cors());
+app.use(express.json()); // IMPORTANT: parses POST request JSON data
 
 // TODO: Allow the state to change periodically
 const state = generateRandomString(16);
@@ -23,6 +28,7 @@ app.get("/", (req: Request, res: Response) => {
   res.status(200);
 });
 
+createAuthEndpoints(app);
 createFeedEndpoints(app, feedItems, users);
 createAccountEndpoints(app, users);
 createSpotifyEndpoints(app, state);
