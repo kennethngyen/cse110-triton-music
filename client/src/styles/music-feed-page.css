@@ -146,11 +146,11 @@
     width: 50px;
     right: -400px;
     top: -50px;
-  
   }
 
 
   .search-input {
+    background-image: url("https://www.freeiconspng.com/img/26760");
     width: 100%;
     padding: 10px;
     border: none;
@@ -160,5 +160,29 @@
     padding-left: 40px;
     z-index: 10000;
   }
+
+  
+.search-btn-options {
+  justify-content: center;
+  display: flex;
+}
+
+  .search-btn-options button {
+    background-color: #e0e0e0;
+    color: black; /* White text */
+    padding: 10px 24px; /* Some padding */
+    cursor: pointer; /* Pointer/hand icon */
+    float: left; /* Float the buttons side by side */
+    border-radius: 30px;
+    margin-right: 10px;
+  }
+
+  
+
+  .search-btn-options button:hover {
+    background-color: #b0b0b0;
+  }
+
+
 
   

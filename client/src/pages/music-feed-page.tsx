@@ -3,8 +3,17 @@ import "../styles/music-feed-page.css";
 import { useState, useEffect} from "react";
 
 
-const SPOTIFY_CLIENT_ID = process.env.CLIENT_ID as string;
-const SPOTIFY_CLIENT_SECRET = process.env.CLIENT_SECRET_ID as string;
+const SPOTIFY_CLIENT_ID = "0ba021f102b14503983e78e2307bcfa4"; //ONLY USING FOR TESTING, WILL REMOVE WHEN COMMIT GOES OUT
+const SPOTIFY_CLIENT_SECRET = "b97528d17ddc40beb118159cff63f39d"; //ONLY USING FOR TESTING, WILL REMOVE WHEN COMMIT GOES OUT
+
+
+
+//const SPOTIFY_CLIENT_ID = process.env.CLIENT_ID as string;
+//const SPOTIFY_CLIENT_SECRET = process.env.CLIENT_SECRET_ID as string;
+
+//^^^^^^^^^^^^^^^^^^^^^^^
+// Current bug, spotify client IDS cannot be ripped from .env files for some raeson,
+// the following code below only works if spotify client/secret is pasted directly into the file 
 
 
 
@@ -18,6 +27,8 @@ export const MusicFeed = () => {
 	const [searchInput, setSearchInput] = useState("");
 	const [accessToken, setAccessToken] = useState("");
 	const[albums, setAlbums] = useState<any[]>([]);
+
+
 	useEffect(() => {
 		var authParameters = {
 			method: 'POST',
@@ -26,18 +37,22 @@ export const MusicFeed = () => {
 			},
 			body: "grant_type=client_credentials&client_id=" + SPOTIFY_CLIENT_ID + '&client_secret=' + SPOTIFY_CLIENT_SECRET
 		}
+		
 		fetch('https://accounts.spotify.com/api/token', authParameters)
 			.then(result => result.json())
 			.then(data => setAccessToken(data.access_token))
-			console.log("string")
+			
+		
+
+		console.log(SPOTIFY_CLIENT_ID)
+
+		
 	}, [])
 
 	//Search function
 
-	async function search() {
-		console.log("Search for " + searchQuery);
-	
-
+	async function searchForAlbum() {
+		
 		//Get request to get artist ID
 		var searchParameters = {
 			method: 'GET',
@@ -51,7 +66,6 @@ export const MusicFeed = () => {
 			.then(response => response.json())
 			.then(data => { return data.artists.items[0].id })
 
-		console.log("Artist ID is " + artistID);
 		//Get request with artist ID to grab all albums from artist
 		var returnedAlbums = await fetch('https://api.spotify.com/v1/artists/' + artistID + '/albums' + '?include_groups=album&market=US&limit=10', searchParameters)
 			.then(response => response.json())
@@ -61,6 +75,31 @@ export const MusicFeed = () => {
 			})
 		//Display albums
 	}
+
+
+
+	async function searchForSong() {
+		
+		//Get request to get artist ID
+		var searchParameters = {
+			method: 'GET',
+			headers: {
+				'Content-type': 'application/json',
+				'Authorization': 'Bearer ' + accessToken
+			}
+		}
+
+		var songTrack = await fetch('https://api.spotify.com/v1/search?q=' + searchQuery + '&type=track&limit=7', searchParameters)
+			.then(response => response.json())
+			.then(data => { return data.tracks.items[0].name })
+
+		console.log(songTrack)
+
+			
+
+	}
+
+
 
 	
 	const selectSong = (songName: string) => {
@@ -141,12 +180,20 @@ export const MusicFeed = () => {
 
 						onKeyDown = {event => {
 							if (event.key == "Enter") {
-								search();
+								searchForSong();
 							}
 						}}
-						/*onChange={event => setSearchInput(event.target.value)}*/
               		/>
             		</div>
+					
+					<div className = "search-btn-options">
+						<button>Albums</button>
+						<button>Playlists</button>
+						<button>Songs</button>
+					</div>
+
+
+
 					<div className="songs-list">
 						{albums.map((album, i) => {
 							return (

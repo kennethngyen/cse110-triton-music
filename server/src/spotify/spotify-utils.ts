@@ -22,7 +22,7 @@ export function requestUserAuthorization(
     // const state = generateRandomString(16);
 
     // scope is what the user is allowing us to access
-    const scope = "user-read-private user-read-email playlist-read-private playlist-read-collaborative user-library-read streaming";
+    const scope = "user-read-private playlist-read-private playlist-read-collaborative user-library-read streaming";
 
     try {
         res.status(200).redirect(

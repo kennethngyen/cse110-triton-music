@@ -330,6 +330,13 @@ export function Timer() {
                 className="search-input"
               />
             </div>
+
+            <div className = "music-search-options">
+                <button>Albums</button>
+                <button>Playlists</button>
+                <button>Songs</button>
+              </div>
+
             <div className="songs-list">
               {songs
                 .filter((song) =>
