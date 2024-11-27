@@ -200,3 +200,56 @@
   flex-direction: column;
   gap: 10px;
 }
+
+.control-button:active,
+.mode-button:active,
+.settings-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  background-color: #f0f0f0;
+}
+
+/* Add some depth to buttons by default */
+.control-button,
+.mode-button,
+.settings-button {
+  transition: all 0.1s ease;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Song item pressed effect */
+.song-item:active {
+  transform: translateY(1px);
+  background-color: #e8e8e8;
+}
+
+/* Delete button pressed effect */
+.delete-button:active {
+  transform: translateY(1px);
+  background-color: #dd3333;
+}
+
+.mode-button {
+  padding: 5px 15px;
+  background-color: white;
+  border: 1px solid black;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Add styles for the active mode button */
+.mode-button.active {
+  background-color: #dc2626;
+  color: white;
+  transform: translateY(2px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Different colors for different modes when active */
+.short-break .mode-button.active {
+  background-color: #3b82f6;
+}
+
+.long-break .mode-button.active {
+  background-color: #dc2626;
+}

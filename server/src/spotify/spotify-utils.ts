@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { API_BASE_URL, SPOTIFY_AUTH_REDIRECT } from "../constants";
 import querystring from "querystring";
 import { generateRandomString } from "../misc/random-query";
+import { updateRefreshTokenDB, getRefreshTokenDB } from "../misc/dbmodification";
 import 'dotenv/config';
 
 /**
@@ -94,9 +95,88 @@ export async function requestAccessToken(
 
     const jsonResponse = await response.json();
     const accessToken = jsonResponse.access_token;
+    const refreshToken = jsonResponse.refresh_token;
 
-    console.log(accessToken);
+    //console.log(accessToken);
+    //console.log(refreshToken);
     // TODO, store the access_token and refresh_token in the database:
+    // in progress
+    await updateRefreshTokenDB(process.env.EMAIL as string, refreshToken);
 
-    res.status(200).send(accessToken);
+
+    res.status(200).send({"access_token": accessToken, "refresh_token": refreshToken});
+}
+
+export async function refreshAccessToken(refresh_token: string):Promise<string>{
+    const response = await fetch("https://accounts.spotify.com/api/token", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": "Basic " + (Buffer.from(process.env.CLIENT_ID + ":" + process.env.CLIENT_SECRET).toString("base64")),
+        },
+        body: new URLSearchParams({
+            grant_type: "refresh_token",
+            refresh_token: refresh_token
+        }).toString(),
+    });
+
+    if (!response.ok) {
+        return "";
+    }
+
+    /**
+     * We expect the successful response to have:
+     * access_token:  
+     * token_type:  always "Bearer"
+     * scope:
+     * expires_in:   (seconds)
+     * refresh_token:   <--- TODO: use this to keep getting new access tokens
+     */
+
+    const jsonResponse = await response.json();
+    const accessToken = jsonResponse.access_token;
+    const refreshToken = jsonResponse.refresh_token;
+
+    if (!refreshToken) {
+        return accessToken;
+    }
+
+
+    await updateRefreshTokenDB(process.env.EMAIL as string, refreshToken);
+    return accessToken;
+}
+
+export async function requestUserInfo (req: Request, res: Response) {
+    const urlParam = req.query.url as string;
+    const decodedURL = decodeURIComponent(urlParam);
+
+    try {
+        // Try to create a new URL object
+        new URL(decodedURL);
+         // If no error is thrown, it's a valid URL
+    } catch (error) {
+        return res.status(400).send({ error: "not a valid URL" });  
+        // If an error is thrown, it's not a valid URL
+    }
+
+    /* TODO
+    code to get access token from some storage
+     */
+    //const accessToken = process.env.ACCESS_TOKEN as string;
+    const refreshToken = await getRefreshTokenDB(process.env.EMAIL as string);
+    const accessToken = await refreshAccessToken(refreshToken);
+    if (accessToken == "") {
+        return res.status(400).send({ error: "error getting access" });
+    }
+
+    const response = await fetch(decodedURL, {
+        headers: {
+            "Authorization": "Bearer " + accessToken,
+        },
+    });
+    const jsonResponse = await response.json();
+
+    console.log(jsonResponse);
+
+    res.status(200).send(jsonResponse);
 }
