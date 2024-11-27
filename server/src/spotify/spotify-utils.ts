@@ -163,7 +163,11 @@ export async function requestUserInfo (req: Request, res: Response) {
     code to get access token from some storage
      */
     //const accessToken = process.env.ACCESS_TOKEN as string;
-    const refreshToken = await getRefreshTokenDB(process.env.EMAIL as string);
+    const user = (req as any).user;
+    if (!user) {
+        return res.status(400).send({ error: "could not get user id" });
+    }
+    const refreshToken = await getRefreshTokenDB(user.email);
     const accessToken = await refreshAccessToken(refreshToken);
     if (accessToken == "") {
         return res.status(400).send({ error: "error getting access" });
@@ -179,4 +183,17 @@ export async function requestUserInfo (req: Request, res: Response) {
     console.log(jsonResponse);
 
     res.status(200).send(jsonResponse);
+}
+
+export async function userRequestToken (req: Request, res: Response) {
+    const user = (req as any).user;
+    if (!user) {
+        return res.status(400).send({ error: "could not get user id" });
+    }
+    const refreshToken = await getRefreshTokenDB(user.email);
+    const accessToken = await refreshAccessToken(refreshToken);
+    if (accessToken == "") {
+        return res.status(400).send({ error: "error getting access" });
+    }
+    res.status(200).send({ access_token: accessToken });
 }

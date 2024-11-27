@@ -55,18 +55,18 @@ export const Home = () => {
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ username, password }),
+				body: JSON.stringify({ email: username, password }),
 			});
 
 			if (!response.ok) {
 				throw new Error("Signup failed. User may already exist.");
 			}
 
-			const data = await response.json();
-			localStorage.setItem("token", data.token);
+			//const data = await response.json();
+			//localStorage.setItem("token", data.token);
 
-			alert("Account created successfully! Logging you in...");
-			navigate("/dashboard");
+			alert("Account created successfully!");
+			//navigate("/dashboard");
 		} catch (err) {
 			alert(err || "An error occurred during signup.");
 		}

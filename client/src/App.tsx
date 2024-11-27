@@ -4,6 +4,7 @@ import { Navbar } from "./components/navbar";
 import { Home } from "./pages/home";
 import { Timer } from "./pages/timer";
 import { Profile } from "./pages/profile";
+import { SpotifyPlayer } from "./pages/spotifyplayer";
 
 import { MusicFeed } from "./pages/music-feed-page";
 import { useEffect, useContext } from "react";
@@ -56,6 +57,7 @@ const App = () => {
 				<Route path="/music-feed" element={<MusicFeed />} />
 				<Route path="/study" element={<Timer />} />
 				<Route path="/profile/:name" element={<Profile />} />
+				<Route path="/player" element={<SpotifyPlayer />}/>
 			</Routes>
 		</div>
 	);

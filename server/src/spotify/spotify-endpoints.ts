@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { requestUserAuthorization, requestAccessToken, requestUserInfo } from "./spotify-utils";
+import { requestUserAuthorization, requestAccessToken, requestUserInfo, userRequestToken } from "./spotify-utils";
+import { authenticateToken } from "../verification/auth-utils";
 
 export function createSpotifyEndpoints(app: any, state: string) {
     // ask for authorization 
@@ -13,7 +14,12 @@ export function createSpotifyEndpoints(app: any, state: string) {
     });
 
     // get user info
-    app.get("/userinfo", (req: Request, res: Response) => {
+    app.get("/userinfo", authenticateToken, (req: Request, res: Response) => {
         requestUserInfo(req, res);
+    });
+
+    // get spotify access token
+    app.get("/spotifytoken", authenticateToken, (req: Request, res: Response) => {
+        userRequestToken(req, res);
     });
 }
