@@ -60,7 +60,7 @@ export const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = ({
     useEffect(() => {
         if (window.Spotify) {
             const player = new window.Spotify.Player({
-                name: "React Spotify Player / Web Playback SDK",
+                name: "React Spotify Player 2",
                 getOAuthToken: (cb: Function) => {
                     cb(accessToken);
                 },
@@ -99,8 +99,9 @@ export const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = ({
 
             // Connect the player to Spotify
             player.connect();
+            console.log(player)
         }
-
+        console.log(window.Spotify)
         return () => {
             if (playerRef.current) {
                 playerRef.current.disconnect();
