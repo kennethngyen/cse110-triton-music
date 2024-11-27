@@ -81,7 +81,8 @@ export async function requestAccessToken(
   });
 
   if (!response.ok) {
-    return res.status(400).send({ error: "Unable to fetch access token" });
+    //return res.status(400).send({ error: "Unable to fetch access token" });
+    res.redirect(Reload_URL + "?error=true");
   }
 
   /**
