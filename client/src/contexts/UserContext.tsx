@@ -12,9 +12,7 @@ interface UserContextType {
 	clearUser: () => void;
 }
 
-export const UserContext = createContext<UserContextType | undefined>(
-	undefined
-);
+export const UserContext = createContext<UserContextType | null>(null);
 
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,

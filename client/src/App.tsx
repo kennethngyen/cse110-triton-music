@@ -8,6 +8,7 @@ import { Profile } from "./pages/profile";
 import { MusicFeed } from "./pages/music-feed-page";
 import { useEffect, useContext } from "react";
 import { UserContext } from "./contexts/UserContext";
+import { json } from "stream/consumers";
 
 //<Route path="/timer:time" element={<Timer />} /> may need to be what line 14 is changed to
 const App = () => {
@@ -30,15 +31,16 @@ const App = () => {
 							"Content-Type": "application/json",
 						},
 					});
-
-					if (!response.ok)
+					if (!response.ok) {
 						console.error("No match from auth token to User object");
-					// throw new Error("No match from auth token to User object");
-					// const userData = await response.json();
-					// setUser(userData); // Populate global state with user data
+						throw new Error("No match from auth token to User object");
+					}
+
+					const jsonData = await response.json();
+					setUser({ userId: jsonData.user.id, username: jsonData.user.email });
 				} catch (err) {
 					console.error("Error fetching user data:", err);
-					// localStorage.removeItem("token"); // Remove token if it’s invalid
+					localStorage.removeItem("token"); // Remove token if it’s invalid
 				}
 			}
 		};
