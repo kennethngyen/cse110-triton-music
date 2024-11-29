@@ -16,28 +16,28 @@ export function requestUserAuthorization(
   res: Response,
   state: string
 ) {
-  const client_id = process.env.CLIENT_ID as string;
+    const client_id = process.env.CLIENT_ID as string;
 
-  // state provides protection against "cross-site request forgery"
-  // const state = generateRandomString(16);
+    // state provides protection against "cross-site request forgery"
+    // const state = generateRandomString(16);
 
-  // scope is what the user is allowing us to access
-  const scope = "user-read-private user-read-email playlist-read-private playlist-read-collaborative user-library-read";
+    // scope is what the user is allowing us to access
+    const scope = "user-read-private user-read-email playlist-read-private playlist-read-collaborative user-library-read streaming";
 
-  try {
-    res.status(200).redirect(
-      "https://accounts.spotify.com/authorize?" +
-        querystring.stringify({
-          response_type: "code",
-          client_id: client_id,
-          scope: scope,
-          redirect_uri: SPOTIFY_AUTH_REDIRECT,
-          state: state,
-        })
-    );
-  } catch (error) {
-    res.status(400).send({ error: "Could not request authorization" });
-  }
+    try {
+        res.status(200).redirect(
+            "https://accounts.spotify.com/authorize?" +
+                querystring.stringify({
+                    response_type: "code",
+                    client_id: client_id,
+                    scope: scope,
+                    redirect_uri: SPOTIFY_AUTH_REDIRECT,
+                    state: state,
+                })
+        );
+    } catch (error) {
+        res.status(400).send({ error: "Could not request authorization" });
+    }
 }
 
 /**
