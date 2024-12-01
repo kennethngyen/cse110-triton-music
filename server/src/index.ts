@@ -7,6 +7,8 @@ import { createAuthEndpoints } from "./verification/auth-endpoint";
 import { feedItems, users } from "./constants";
 import { createSpotifyEndpoints } from "./spotify/spotify-endpoints";
 import { generateRandomString } from "./misc/random-query";
+import { createUserEndpoints } from "./profile/search-users-endpoints";
+import { createFollowingEndpoints } from "./profile/following-endpoints";
 
 const app = express();
 const port = 8080;
@@ -32,5 +34,7 @@ createAuthEndpoints(app);
 createFeedEndpoints(app, feedItems, users);
 createAccountEndpoints(app, users);
 createSpotifyEndpoints(app, state);
+createUserEndpoints(app);
+createFollowingEndpoints(app);
 
 export { app };
