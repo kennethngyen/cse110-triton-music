@@ -5,3 +5,9 @@ export type FeedItem = {
   username: string;
   userPfp: string;
 };
+
+export type User = {
+  id: string;
+  name: string;
+  email:string;
+}

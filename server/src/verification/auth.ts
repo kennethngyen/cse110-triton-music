@@ -1,15 +1,21 @@
 // auth.ts
 import bcrypt from 'bcrypt';
 import { db } from '../db/db';
-import { auth} from '../db/schema'; // Import 'users' table
+import { auth, usersTable} from '../db/schema'; // Import 'users' table
 import { eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
 import { NextFunction } from 'express';
+import 'dotenv/config';
+import { User } from '../types';
 
 const SECRET_KEY = process.env.SECRET_KEY || 'default_secret_key';
 
+type localUser={
+  id: string;
+  email: string;
+}
 // Function to register a new user
-export async function registerUser(email: string, password: string): Promise<{ success: boolean; error?: string }> {
+export async function registerUser(email: string, password: string): Promise<{ success: boolean; token?: string; user?: localUser; error?: string }> {
   try {
     // Check if the user already exists in 'auth' table
     const existingAuthUser = await db
@@ -26,13 +32,37 @@ export async function registerUser(email: string, password: string): Promise<{ s
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Insert into 'auth' table
-    await db.insert(auth).values({
-      email: email,
-      passwordHash: hashedPassword,
-    });
+    const [newUser] = await db
+      .insert(auth)
+      .values({
+        email: email,
+        passwordHash: hashedPassword,
+      })
+      .returning({ id: auth.id, email: auth.email });
 
-    return { success: true };
-  } catch (error) {
+      if (!newUser) {
+        return { success: false, error: 'Failed to register user.' };
+      }
+
+      const user = newUser as localUser;
+
+      //now, add to user table
+      await db.insert(usersTable).values({
+        name: email,
+        email: email,
+      });
+  
+  
+      // Generate JWT token with the new user's ID and email
+      const token = jwt.sign(
+        { id: newUser.id, email: newUser.email }, // Payload
+        SECRET_KEY, // Secret key
+        { expiresIn: '24h' } // Options
+      );
+  
+
+      return { success: true, token, user };
+    } catch (error) {
     console.error('Error registering user:', error);
     return { success: false, error: 'Unable to register user. Please try again later.' };
   }
@@ -66,7 +96,7 @@ export async function loginUser(
     const token = jwt.sign(
       { id: authUser.id, email: authUser.email }, // Payload
       SECRET_KEY, // Secret key
-      { expiresIn: '1h' } // Options
+      { expiresIn: '24h' } // Options
     );
 
     // Exclude passwordHash from returned user details

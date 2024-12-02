@@ -26,7 +26,15 @@ export const auth = sqliteTable("auth", {
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
     passwordHash: text().notNull(),
-    email: text().notNull().unique()
+    email: text().notNull().unique(),
+    spotifyRefreshToken: text()
 });
 
-  
+export const followingTable = sqliteTable("following", {
+    id: text("id", { length: 255 })
+        .notNull()
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    follower: text().notNull(),
+    followee: text().notNull(),
+});

@@ -3,10 +3,17 @@
   "dialect": "sqlite",
   "entries": [
     {
-      "idx": 0,
+      "idx": 1,
       "version": "6",
-      "when": 1731968364456,
-      "tag": "0000_luxuriant_nitro",
+      "when": 1732733349450,
+      "tag": "0001_past_ultragirl",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1733011560962,
+      "tag": "0001_freezing_lady_bullseye",
       "breakpoints": true
     }
   ]
