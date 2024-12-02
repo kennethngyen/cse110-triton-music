@@ -10,6 +10,7 @@ import { MusicFeed } from "./pages/music-feed-page";
 import { useEffect, useContext } from "react";
 import { UserContext } from "./contexts/UserContext";
 import { json } from "stream/consumers";
+import { Signup } from "./pages/signup";
 
 //<Route path="/timer:time" element={<Timer />} /> may need to be what line 14 is changed to
 const App = () => {
@@ -54,6 +55,7 @@ const App = () => {
 			<Navbar />
 			<Routes>
 				<Route path="/" element={<Home />} />
+				<Route path="/signup" element={<Signup />} />
 				<Route path="/music-feed" element={<MusicFeed />} />
 				<Route path="/study" element={<Timer />} />
 				<Route path="/profile/:name" element={<Profile />} />

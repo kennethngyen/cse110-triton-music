@@ -23,8 +23,14 @@ export async function registerUserHandler(req: Request, res: Response) {
     return res.status(400).json({ error: result.error });
   }
 
-  res.status(201).json({ message: 'User registered successfully!' });
-}
+  const { token, user } = result;
+
+  res.status(201).json({ 
+    message: 'User registered successfully!', 
+    token,
+    user
+  });
+  }
 
 export async function loginUserHandler(req: Request, res: Response) {
   const { email, password } = req.body;

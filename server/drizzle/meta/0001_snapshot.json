@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "157f7a4f-b782-423e-9399-265f6af28b04",
+  "id": "04345159-8d87-4774-a4f0-d0a06dc93efc",
   "prevId": "77151d8d-dfb9-43eb-a64f-8f0cc9fa0715",
   "tables": {
     "auth": {
@@ -26,13 +26,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
-        },
-        "spotifyRefreshToken": {
-          "name": "spotifyRefreshToken",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
           "autoincrement": false
         }
       },
@@ -77,6 +70,37 @@
         "date": {
           "name": "date",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "following": {
+      "name": "following",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(255)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "follower": {
+          "name": "follower",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "followee": {
+          "name": "followee",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
