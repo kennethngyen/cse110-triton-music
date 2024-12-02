@@ -86,8 +86,8 @@ h2 {
 .friend-search {
   margin-top: 20px;
   width: 100%;
-  display: flex;
-  justify-content: center;
+  /* display: flex; */
+  /* justify-content: center; */
 }
 
 .friend-search input {
