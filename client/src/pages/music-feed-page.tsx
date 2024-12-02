@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import "../styles/music-feed-page.css";
 import { useState, useEffect } from "react";
+import { useUser } from "../contexts/UserContext";
 
 const SPOTIFY_CLIENT_ID = process.env.CLIENT_ID as string;
 const SPOTIFY_CLIENT_SECRET = process.env.CLIENT_SECRET_ID as string;
@@ -83,7 +84,16 @@ export const MusicFeed = () => {
 		{ id: 3, name: "Song C" },
 	];
 
-	console.log(albums);
+	const { user } = useUser();
+	// console.log(albums);
+	if (!user) {
+		return (
+			<div>
+				<h1 className="text-3xl text-center text-red-500">Please log in.</h1>
+			</div>
+		);
+	}
+
 	return (
 		<div className="music-feed">
 			<div className="feed-section">

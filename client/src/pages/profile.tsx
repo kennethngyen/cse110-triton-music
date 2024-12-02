@@ -155,6 +155,11 @@ export function Profile() {
 			console.error("Error following user:", error);
 		}
 	};
+	const handleSignOut = () => {
+		localStorage.removeItem("token");
+
+		window.location.href = "/";
+	};
 
 	const handleUnfollow = async (followeeId: string) => {
 		try {
@@ -196,6 +201,14 @@ export function Profile() {
 				return "Connect Spotify";
 		}
 	};
+
+	if (!user) {
+		return (
+			<div>
+				<h1 className="text-3xl text-center text-red-500">Please log in.</h1>
+			</div>
+		);
+	}
 
 	return (
 		<div className="profile-page">
@@ -245,6 +258,12 @@ export function Profile() {
 							)}
 						</ul>
 					</div>
+					<button
+						className="signout-button bg-red-500 text-white mt-4 p-2 rounded"
+						onClick={handleSignOut}
+					>
+						Sign Out
+					</button>
 				</div>
 				<div className="friends-section">
 					<div className="friend-search">
