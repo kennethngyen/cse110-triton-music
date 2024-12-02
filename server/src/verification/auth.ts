@@ -5,6 +5,7 @@ import { auth, usersTable} from '../db/schema'; // Import 'users' table
 import { eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
 import { NextFunction } from 'express';
+import 'dotenv/config';
 import { User } from '../types';
 
 const SECRET_KEY = process.env.SECRET_KEY || 'default_secret_key';

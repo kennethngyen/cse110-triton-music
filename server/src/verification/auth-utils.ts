@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
 import { NextFunction, Request, Response } from 'express';
 import { registerUser, loginUser } from '../verification/auth';
+import 'dotenv/config';
 const SECRET_KEY = process.env.SECRET_KEY || 'default_secret_key';
 
 export async function registerUserHandler(req: Request, res: Response) {
