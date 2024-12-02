@@ -86,13 +86,13 @@ export const MusicFeed = () => {
 
 	const { user } = useUser();
 	// console.log(albums);
-	if (!user) {
-		return (
-			<div>
-				<h1 className="text-3xl text-center text-red-500">Please log in.</h1>
-			</div>
-		);
-	}
+	// if (!user) {
+	// 	return (
+	// 		<div>
+	// 			<h1 className="text-3xl text-center text-red-500">Please log in.</h1>
+	// 		</div>
+	// 	);
+	// }
 
 	return (
 		<div className="music-feed">
