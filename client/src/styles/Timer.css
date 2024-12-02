@@ -118,6 +118,9 @@
 
 .search-container {
   margin-bottom: 20px;
+  justify-content: center;
+  display:flex
+
 }
 
 .search-input {
@@ -149,6 +152,35 @@
   width: 100%;
   text-align: left;
 }
+
+
+
+
+
+
+
+.music-search-options {
+  justify-content: center;
+  display: flex;
+}
+
+.music-search-options button {
+  background-color: #e0e0e0;
+  color: black; /* White text */
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  float: left; /* Float the buttons side by side */
+  border-radius: 30px;
+  margin-right: 10px;
+}
+
+
+
+.music-search-options button:hover {
+  background-color: #b0b0b0;
+}
+
+
 
 .song-item:hover {
   background-color: #f0f0f0;

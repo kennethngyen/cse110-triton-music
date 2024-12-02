@@ -18,7 +18,6 @@ interface Song {
   name: string;
 }
 
-
 const SPOTIFY_CLIENT_ID = process.env.CLIENT_ID as string;
 const SPOTIFY_CLIENT_SECRET = process.env.CLIENT_SECRET_ID as string;
         
@@ -40,7 +39,7 @@ export const MusicFeed = () => {
   // Current user information (Replace with actual user data from context or props)
   const currentUserID: string = "123"; // Replace with actual user ID
   const currentUsername: string = "CurrentUser"; // Replace with actual username
-
+  
   // Predefined songs list
   const songs: Song[] = [
     { id: 1, name: "Song A" },
@@ -57,7 +56,7 @@ export const MusicFeed = () => {
   useEffect(() => {
     setIsLoading(true);
     setError("");
-
+    
     // Ensure the backend URL is consistent.
     fetch("http://localhost:8080/feed")
       .then((response) => {
@@ -116,7 +115,6 @@ export const MusicFeed = () => {
 				return data.artists.items[0].id;
 			});
 
-		console.log("Artist ID is " + artistID);
 		//Get request with artist ID to grab all albums from artist
 		var returnedAlbums = await fetch(
 			"https://api.spotify.com/v1/artists/" +
@@ -133,6 +131,27 @@ export const MusicFeed = () => {
 		//Display albums
 	}
 
+	async function searchForSong() {
+		
+		//Get request to get artist ID
+		var searchParameters = {
+			method: 'GET',
+			headers: {
+				'Content-type': 'application/json',
+				'Authorization': 'Bearer ' + accessToken
+			}
+		}
+
+		var songTrack = await fetch('https://api.spotify.com/v1/search?q=' + searchQuery + '&type=track&limit=7', searchParameters)
+			.then(response => response.json())
+			.then(data => { return data.tracks.items[0].name })
+
+		console.log(songTrack)
+
+			
+
+	}
+        
   // Handle sharing a new song by posting to the backend
   const handleShare = (): void => {
     if (!selectedSong) {
