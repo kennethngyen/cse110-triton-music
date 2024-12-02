@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import "../styles/music-feed-page.css";
 import { useState, useEffect } from "react";
+import { useUser } from "../contexts/UserContext";
 
 // Define the structure of a feed item
 interface FeedItem {
@@ -176,6 +177,8 @@ export const MusicFeed = () => {
       });
   };
 
+  const { user } = useUser();
+      
   return (
     <div className="music-feed">
       <div className="feed-section">

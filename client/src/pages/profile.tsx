@@ -25,7 +25,7 @@ export function Profile() {
 			try {
 				const token = localStorage.getItem("token");
 				if (!token) {
-					throw new Error("No token found");
+					console.error("No token found");
 				}
 
 				const response = await fetch("http://localhost:8080/get-following", {
@@ -35,7 +35,7 @@ export function Profile() {
 				});
 
 				if (!response.ok) {
-					throw new Error("Failed to fetch following list");
+					console.error("Failed to fetch following list");
 				}
 
 				const data = await response.json();
@@ -55,7 +55,7 @@ export function Profile() {
 			try {
 				const response = await fetch("http://localhost:8080/users");
 				if (!response.ok) {
-					throw new Error("Failed to fetch all users");
+					console.error("Failed to fetch all users");
 				}
 				const data = await response.json();
 				setUsers(data.data); // Assuming the response contains a `data` field with the user array
@@ -74,7 +74,7 @@ export function Profile() {
 			try {
 				const response = await fetch("http://localhost:8080/users");
 				if (!response.ok) {
-					throw new Error("Failed to fetch all users");
+					console.error("Failed to fetch all users");
 				}
 				const data = await response.json();
 				setUsers(data.data); // Assuming the response contains a `data` field with the user array
@@ -116,7 +116,7 @@ export function Profile() {
 					`/users/search?username=${encodeURIComponent(searchQuery)}`
 				);
 				if (!response.ok) {
-					throw new Error("Failed to fetch users");
+					console.error("Failed to fetch users");
 				}
 				const data = await response.json();
 				setUsers(data.data); // Assuming the response contains a `data` field with the user array
@@ -141,7 +141,7 @@ export function Profile() {
 				}),
 			});
 			if (!response.ok) {
-				throw new Error("Failed to follow user");
+				console.error("Failed to follow user");
 			}
 			const result = await response.json();
 			if (result.success) {
@@ -154,6 +154,11 @@ export function Profile() {
 		} catch (error) {
 			console.error("Error following user:", error);
 		}
+	};
+	const handleSignOut = () => {
+		localStorage.removeItem("token");
+
+		window.location.href = "/";
 	};
 
 	const handleUnfollow = async (followeeId: string) => {
@@ -170,7 +175,7 @@ export function Profile() {
 				}),
 			});
 			if (!response.ok) {
-				throw new Error("Failed to unfollow user");
+				console.error("Failed to unfollow user");
 			}
 			alert("Unfollowed successfully!");
 		} catch (error) {
@@ -196,6 +201,14 @@ export function Profile() {
 				return "Connect Spotify";
 		}
 	};
+
+	// if (!user) {
+	// 	return (
+	// 		<div>
+	// 			<h1 className="text-3xl text-center text-red-500">Please log in.</h1>
+	// 		</div>
+	// 	);
+	// }
 
 	return (
 		<div className="profile-page">
@@ -245,6 +258,12 @@ export function Profile() {
 							)}
 						</ul>
 					</div>
+					<button
+						className="signout-button bg-red-500 text-white mt-4 p-2 rounded"
+						onClick={handleSignOut}
+					>
+						Sign Out
+					</button>
 				</div>
 				<div className="friends-section">
 					<div className="friend-search">
