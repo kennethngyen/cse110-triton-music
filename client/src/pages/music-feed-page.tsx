@@ -17,6 +17,10 @@ interface Song {
   name: string;
 }
 
+
+const SPOTIFY_CLIENT_ID = process.env.CLIENT_ID as string;
+const SPOTIFY_CLIENT_SECRET = process.env.CLIENT_SECRET_ID as string;
+        
 export const MusicFeed = () => {
   // State variables
   const [showSettings, setShowSettings] = useState<boolean>(false);
@@ -27,7 +31,11 @@ export const MusicFeed = () => {
   const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-
+  
+	const [searchInput, setSearchInput] = useState("");
+	const [accessToken, setAccessToken] = useState("");
+	const [albums, setAlbums] = useState<any[]>([]);
+    
   // Current user information (Replace with actual user data from context or props)
   const currentUserID: string = "123"; // Replace with actual user ID
   const currentUsername: string = "CurrentUser"; // Replace with actual username
@@ -67,7 +75,62 @@ export const MusicFeed = () => {
         setError("Failed to load feed. Please try again later.");
         setIsLoading(false);
       });
+    
+    var authParameters = {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded",
+			},
+			body:
+				"grant_type=client_credentials&client_id=" +
+				SPOTIFY_CLIENT_ID +
+				"&client_secret=" +
+				SPOTIFY_CLIENT_SECRET,
+		};
+		fetch("https://accounts.spotify.com/api/token", authParameters)
+			.then((result) => result.json())
+			.then((data) => setAccessToken(data.access_token));
   }, []);
+    
+  //Search function
+
+	async function search() {
+		console.log("Search for " + searchQuery);
+
+		//Get request to get artist ID
+		var searchParameters = {
+			method: "GET",
+			headers: {
+				"Content-type": "application/json",
+				Authorization: "Bearer " + accessToken,
+			},
+		};
+
+		var artistID = await fetch(
+			"https://api.spotify.com/v1/search?q=" + searchQuery + "&type=artist",
+			searchParameters
+		)
+			.then((response) => response.json())
+			.then((data) => {
+				return data.artists.items[0].id;
+			});
+
+		console.log("Artist ID is " + artistID);
+		//Get request with artist ID to grab all albums from artist
+		var returnedAlbums = await fetch(
+			"https://api.spotify.com/v1/artists/" +
+				artistID +
+				"/albums" +
+				"?include_groups=album&market=US&limit=10",
+			searchParameters
+		)
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data);
+				setAlbums(data.items);
+			});
+		//Display albums
+	}
 
   // Handle sharing a new song by posting to the backend
   const handleShare = (): void => {
