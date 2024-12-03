@@ -35,6 +35,128 @@ h2 {
   margin-top: 10px;
 }
 
+/* Following Feed Styles */
+.following-feed {
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.following-feed h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.friend-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 15px;
+  background-color: #fff;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  position: relative;
+}
+.friend-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.friend-icon .circle {
+  width: 40px;
+  height: 40px;
+  background-color: #ddd;
+  border-radius: 50%;
+}
+
+.friend-info {
+  margin-left: 15px;
+  flex-grow: 1;
+  overflow: hidden;
+}
+.friend-info p {
+  margin: 0;
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Search Section Styles */
+.friends-section {
+  width: 50%;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.friend-search {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.friend-search input {
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  margin-bottom: 15px;
+}
+
+.friend-search input::placeholder {
+  color: #999;
+}
+
+/* User Results Styles */
+.user-results {
+  margin-top: 15px;
+}
+
+.user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background-color: #f8f8f8;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+/* Follow/Unfollow Button Styles */
+.follow-button {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.follow-button.follow {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.follow-button.follow:hover {
+  background-color: #45a049;
+}
+
+.follow-button.unfollow {
+  background-color: #ff4444;
+  color: white;
+}
+
+.follow-button.unfollow:hover {
+  background-color: #ff3333;
+}
+
+/* Spotify Button Styles */
 .spotify-connect {
   display: flex;
   align-items: center;
@@ -49,6 +171,8 @@ h2 {
   margin-top: 10px;
   width: 100%;
   box-sizing: border-box;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .spotify-connect img {
@@ -56,58 +180,29 @@ h2 {
   height: 24px;
 }
 
-.friends-section {
-  width: 50%;
-  background-color: #e0e0e0;
-  padding: 20px;
-  border-radius: 8px;
-}
-
-.friend-item {
-  display: flex;
-  align-items: center;
-  background-color: #fff;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-}
-
-.friend-icon .circle {
-  width: 40px;
-  height: 40px;
-  background-color: #ddd;
-  border-radius: 50%;
-}
-
-.friend-info {
-  margin-left: 10px;
-}
-
-.friend-search {
-  margin-top: 20px;
-  width: 100%;
-  /* display: flex; */
-  /* justify-content: center; */
-}
-
-.friend-search input {
-  width: 100%;
-  max-width: 300px;
-  padding: 8px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  outline: none;
-}
-
-.friend-search input::placeholder {
-  color: #999;
-}
 .spotify-connect.connected {
   background-color: #1db954;
+  color: white;
   cursor: default;
 }
 
 .spotify-connect.failed {
   background-color: #ff4444;
+  color: white;
+}
+
+/* Sign Out Button Style */
+.signout-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.signout-button:hover {
+  background-color: #ff3333;
 }
