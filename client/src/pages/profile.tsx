@@ -5,12 +5,10 @@ import { useUser } from "../contexts/UserContext";
 import { User } from "../types/types";
 
 export function Profile() {
-	const { user, setUser } = useUser();
-	const { name } = useParams();
+	const { user } = useUser(); // Removed unused setUser
 	const [searchQuery, setSearchQuery] = useState("");
-	const [description, setDescription] = useState("");
-	const [users, setUsers] = useState([]);
-	const [following, setFollowing] = useState([] as User[]);
+	const [users, setUsers] = useState<User[]>([]);
+	const [following, setFollowing] = useState<User[]>([]);
 
 	const [spotifyStatus, setSpotifyStatus] = useState<
 		"idle" | "connected" | "failed"
@@ -58,26 +56,7 @@ export function Profile() {
 					console.error("Failed to fetch all users");
 				}
 				const data = await response.json();
-				setUsers(data.data); // Assuming the response contains a `data` field with the user array
-			} catch (error) {
-				console.error("Error fetching all users:", error);
-				setUsers([]);
-			}
-		};
-
-		fetchAllUsers();
-	}, []);
-
-	useEffect(() => {
-		// Fetch all users on initial load
-		const fetchAllUsers = async () => {
-			try {
-				const response = await fetch("http://localhost:8080/users");
-				if (!response.ok) {
-					console.error("Failed to fetch all users");
-				}
-				const data = await response.json();
-				setUsers(data.data); // Assuming the response contains a `data` field with the user array
+				setUsers(data.data);
 			} catch (error) {
 				console.error("Error fetching all users:", error);
 				setUsers([]);
@@ -101,12 +80,6 @@ export function Profile() {
 		}
 	}, []);
 
-	const handleDescriptionChange = (
-		e: React.ChangeEvent<HTMLTextAreaElement>
-	) => {
-		setDescription(e.target.value);
-	};
-
 	const handleSearchSubmit = async (
 		e: React.KeyboardEvent<HTMLInputElement>
 	) => {
@@ -119,10 +92,10 @@ export function Profile() {
 					console.error("Failed to fetch users");
 				}
 				const data = await response.json();
-				setUsers(data.data); // Assuming the response contains a `data` field with the user array
+				setUsers(data.data);
 			} catch (error) {
 				console.error("Error fetching users:", error);
-				setUsers([]); // Clear users on error
+				setUsers([]);
 			}
 		}
 	};
@@ -155,9 +128,9 @@ export function Profile() {
 			console.error("Error following user:", error);
 		}
 	};
+
 	const handleSignOut = () => {
 		localStorage.removeItem("token");
-
 		window.location.href = "/";
 	};
 
@@ -202,14 +175,6 @@ export function Profile() {
 		}
 	};
 
-	// if (!user) {
-	// 	return (
-	// 		<div>
-	// 			<h1 className="text-3xl text-center text-red-500">Please log in.</h1>
-	// 		</div>
-	// 	);
-	// }
-
 	return (
 		<div className="profile-page">
 			<div className="profile-body">
@@ -218,12 +183,6 @@ export function Profile() {
 						<div className="circle"></div>
 					</div>
 					<h2>{user?.username}</h2>
-					{/* <textarea
-						className="description-box"
-						value={description}
-						onChange={handleDescriptionChange}
-						placeholder="Add a description about yourself..."
-					/> */}
 					<button
 						className={`spotify-connect ${
 							spotifyStatus === "connected" ? "connected" : ""
@@ -237,38 +196,42 @@ export function Profile() {
 						/>
 						{getButtonText()}
 					</button>
-					<div className="bg-gray-200 p-3 mt-4">
-						<h3 className="text-xl">Your Following</h3>
-						<ul>
-							{following.map(
-								(friend: { id: string; name: string; email: string }) => (
-									<li key={friend.id} className="friend-item">
-										<div className="friend-icon">
-											<div className="circle"></div>
-										</div>
-										<div className="friend-info">
-											<p>{friend.name}</p>
-											<p>{friend.email}</p>
-											<p>
-												Just listened to: <a href="#">(Insert Song)</a>
-											</p>
-										</div>
-									</li>
-								)
-							)}
-						</ul>
-					</div>
-					<button
-						className="signout-button bg-red-500 text-white mt-4 p-2 rounded"
-						onClick={handleSignOut}
-					>
+
+					<div className="following-feed">
+  <h3>Your Following</h3>
+  {following.map((friend) => (
+    <div key={friend.id} className="friend-item">
+      <div className="friend-icon">
+        <div className="circle"></div>
+        <button
+          className="follow-button unfollow"
+          onClick={() => handleUnfollow(friend.id)}
+        >
+          Unfollow
+        </button>
+      </div>
+      <div className="friend-info">
+        <p>{friend.name}</p>
+        <p>{friend.email}</p>
+        <p>
+          :{" "}
+          <button className="text-blue-500 underline">
+            No song played yet
+          </button>
+        </p>
+      </div>
+    </div>
+  ))}
+</div>
+
+					<button className="signout-button" onClick={handleSignOut}>
 						Sign Out
 					</button>
 				</div>
+
 				<div className="friends-section">
 					<div className="friend-search">
 						<h3>Search Users</h3>
-
 						<input
 							type="text"
 							placeholder="Search for users..."
@@ -277,23 +240,23 @@ export function Profile() {
 							onKeyDown={handleSearchSubmit}
 						/>
 						<div className="user-results">
-							{users.map((user: { id: string; name: string }) => (
-								<div key={user.id} className="user-item">
-									<span>{user.name}</span>
-									<button
-										className="bg-black text-white"
-										onClick={() =>
-											following.some((f) => f.id === user.id)
-												? handleUnfollow(user.id)
-												: handleFollow(user.id)
-										}
-									>
-										{following.some((f) => f.id === user.id)
-											? "Unfollow"
-											: "Follow"}
-									</button>
-								</div>
-							))}
+							{users
+								.filter(
+									(u) =>
+										!following.some((f) => f.id === u.id) &&
+										u.id !== user?.userId
+								)
+								.map((user) => (
+									<div key={user.id} className="user-item">
+										<span>{user.name}</span>
+										<button
+											className="follow-button follow"
+											onClick={() => handleFollow(user.id)}
+										>
+											Follow
+										</button>
+									</div>
+								))}
 						</div>
 					</div>
 				</div>
