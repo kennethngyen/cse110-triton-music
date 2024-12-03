@@ -157,7 +157,7 @@ export function Profile() {
 	};
 
 	const handleSpotifyConnect = () => {
-		window.location.href = "http://localhost:8080/spotifylogin";
+		window.location.href = "http://localhost:8080/spotifylogin/"+user?.userId;
 	};
 
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

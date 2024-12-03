@@ -4,7 +4,7 @@ import { authenticateToken } from "../verification/auth-utils";
 
 export function createSpotifyEndpoints(app: any, state: string) {
   // ask for authorization
-  app.get("/spotifylogin", (req: Request, res: Response) => {
+  app.get("/spotifylogin/:userID", (req: Request, res: Response) => {
     requestUserAuthorization(req, res, state);
   });
 

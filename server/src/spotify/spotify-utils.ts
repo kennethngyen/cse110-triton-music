@@ -16,6 +16,12 @@ export function requestUserAuthorization(
   res: Response,
   state: string
 ) {
+    const { userID } = req.params;
+
+    if (!userID) {
+        return res.status(400).send({ error: "Did not send user ID" });
+    }
+
     const client_id = process.env.CLIENT_ID as string;
 
     // state provides protection against "cross-site request forgery"
@@ -32,7 +38,7 @@ export function requestUserAuthorization(
                     client_id: client_id,
                     scope: scope,
                     redirect_uri: SPOTIFY_AUTH_REDIRECT,
-                    state: state,
+                    state: state+userID,
                 })
         );
     } catch (error) {
@@ -60,7 +66,7 @@ export async function requestAccessToken(
     //return res.status(400).send({ error: "" + err });
     return res.redirect(Reload_URL + "?error=" + (err || 'missing_code'));
   }
-  if (state_ != state) {
+  if ((state_ as string).substring(0,state.length) != state) {
    // return res.status(400).send({ error: "security threat; please try again" });
    return res.redirect(Reload_URL + "?error=invalid_state");
   }
@@ -105,7 +111,7 @@ export async function requestAccessToken(
   // TODO, store the access_token and refresh_token in the database:
   // in progress
 
-  await updateRefreshTokenDB(process.env.EMAIL as string, refreshToken);
+  await updateRefreshTokenDB((state_ as string).substring(state.length), refreshToken);
   //res.status(200).send({ access_token: accessToken, refresh_token: refreshToken });       
   return res.redirect(Reload_URL + "?success=true");
 }
@@ -150,7 +156,7 @@ export async function refreshAccessToken(
     return accessToken;
   }
 
-  await updateRefreshTokenDB(process.env.EMAIL as string, refreshToken);
+  // await updateRefreshTokenDB(process.env.EMAIL as string, refreshToken);
   return accessToken;
 }
 
@@ -175,7 +181,7 @@ export async function requestUserInfo(req: Request, res: Response) {
     if (!user) {
         return res.status(400).send({ error: "could not get user id" });
     }
-    const refreshToken = await getRefreshTokenDB(user.email);
+    const refreshToken = await getRefreshTokenDB(user.id);
     const accessToken = await refreshAccessToken(refreshToken);
     if (accessToken == "") {
         return res.status(400).send({ error: "error getting access" });
@@ -198,7 +204,7 @@ export async function userRequestToken (req: Request, res: Response) {
     if (!user) {
         return res.status(400).send({ error: "could not get user id" });
     }
-    const refreshToken = await getRefreshTokenDB(user.email);
+    const refreshToken = await getRefreshTokenDB(user.id);
     const accessToken = await refreshAccessToken(refreshToken);
     if (accessToken == "") {
         return res.status(400).send({ error: "error getting access" });

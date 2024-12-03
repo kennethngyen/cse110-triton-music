@@ -1,6 +1,7 @@
 import "../styles/Timer.css";
 import React, { useState, useEffect } from "react";
 import "../App.css";
+import { SpotifyPlayer } from "./spotifyplayer";
 
 interface TimerSettings {
   pomodoro: number;
@@ -419,6 +420,7 @@ export function Timer() {
           </div>
         </>
       )}
+      <SpotifyPlayer />
     </div>
   );
 }
