@@ -1,18 +1,19 @@
 import { eq } from "drizzle-orm/sql";
 import { db } from "../db/db";
-import { usersTable } from "../db/schema";
+import { auth } from "../db/schema";
 import { encrypt, decrypt } from "./encryption";
 
-//TODO: alter when spotifytoken column is added
-
-export async function updateRefreshTokenDB(email: string, token: string) {
-    await db.update(usersTable)
-        .set({ name: encrypt(token) })
-        .where(eq(usersTable.email, email));
+export async function updateRefreshTokenDB(userID: string, token: string) {
+    await db.update(auth)
+        .set({ spotifyRefreshToken: encrypt(token) })
+        .where(eq(auth.id, userID));
 }
 
-export async function getRefreshTokenDB(email: string) : Promise<string> {
-    const result = await db.select({ token: usersTable.name }).from(usersTable).where(eq(usersTable.email, email));
+export async function getRefreshTokenDB(userID: string) : Promise<string> {
+    const result = await db.select({ token: auth.spotifyRefreshToken }).from(auth).where(eq(auth.id, userID));
     const { token } = result[0];
+    if (!token) {
+        return "";
+    }
     return decrypt(token);
 }
