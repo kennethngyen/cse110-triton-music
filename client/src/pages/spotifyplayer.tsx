@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { API_BASE_URL } from "../constants/constants";
 import { makeAuthRequest } from "../misc/auth";
 
@@ -42,6 +42,7 @@ const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = (props) => {
     const [is_active, setActive] = useState<boolean>(false);
     const [player, setPlayer] = useState<Spotify.Player | undefined>(undefined);
     const [current_track, setTrack] = useState<Track | undefined>(undefined);
+    const count = useRef(1);
 
     useEffect(() => {
         const script = document.createElement("script");
@@ -51,7 +52,7 @@ const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = (props) => {
 
         window.onSpotifyWebPlaybackSDKReady = () => {
             const player = new window.Spotify.Player({
-                name: "Triton Music Web Playback SDK",
+                name: "Triton Music Web Playback SDK" + count.current,
                 getOAuthToken: (cb: (token: string) => void) => {
                     cb(props.token);
                 },
@@ -80,6 +81,7 @@ const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = (props) => {
             });
 
             player.connect();
+            count.current += 1;
         };
     }, []);
 
@@ -104,6 +106,7 @@ const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = (props) => {
                                 src={current_track.album.images[0].url}
                                 className="now-playing__cover"
                                 alt=""
+                                width="200"
                             />
                             <div className="now-playing__side">
                                 <div className="now-playing__name">
