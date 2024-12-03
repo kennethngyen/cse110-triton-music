@@ -175,6 +175,15 @@ export function Profile() {
 		}
 	};
 
+
+	if (!user) {
+		return (
+			<div>
+				<h1 className="text-3xl text-center text-red-500">Please log in.</h1>
+			</div>
+		);
+	}
+
 	return (
 		<div className="profile-page">
 			<div className="profile-body">
