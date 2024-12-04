@@ -77,8 +77,12 @@ export function Timer() {
     initialState.settings
   );
 
+  const[playlist, setPlaylist]= useState<any[]>([]);
+
   const [song, setSong] = useState<any[]>([]);
   const [accessToken, setAccessToken] = useState("");
+  const [playlistBtnClicked, setPlaylistClicked] = useState(false); // Declare a state variable
+  const [songsBtnClicked, setSongsBtnClicked] = useState(false);
 
   const [displayMinutes, setDisplayMinutes] = useState(() => {
     if (initialState.targetTime) {
@@ -100,6 +104,25 @@ export function Timer() {
     { id: 2, name: "Song B" },
     { id: 3, name: "Song C" },
   ];
+
+  const resetPlaylistClicked = () => {
+    setPlaylistClicked(false); // Reset to false after displaying songs
+  };
+
+
+  const handlePlaylistClick = () => {
+    setPlaylistClicked(true); // Show playlist when clicked
+    setSongsBtnClicked(false); // Ensure Songs button is reset
+  };
+
+
+   
+  // Handler for Songs Button
+  const handleSongsClick = () => {
+    setSongsBtnClicked(true); // Show songs when clicked
+    setPlaylistClicked(false); // Ensure Playlist button is reset
+  };
+
 
   useEffect(() => {
     try {
@@ -152,6 +175,40 @@ export function Timer() {
 				//return data.tracks.items[0].name;
 			});
 	  }
+
+    async function searchForPlaylist() {
+      //Get request to get artist ID
+      var searchParameters = {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: "Bearer " + accessToken,
+        },
+      };
+  
+      var songTrack = await fetch(
+        "https://api.spotify.com/v1/search?q=" +
+          searchQuery +
+          "&type=playlist&limit=10",
+        searchParameters
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          console.log(data.playlists.items);
+          // Filter out null or undefined items from the playlist
+          const validPlaylists = data.playlists.items.filter((item: null | undefined) => item !== null && item !== undefined);
+          console.log(validPlaylists);
+
+          // Proceed only with valid items
+          if (validPlaylists.length > 0) {
+            setPlaylist(validPlaylists); // Set filtered playlist items
+          } else {
+            console.log("No valid playlists found.");
+            // Handle the case where no valid playlists are found
+          }
+        });
+      }
 
 
 
@@ -376,6 +433,7 @@ export function Timer() {
 									
 									setSearchQuery(e.target.value)
 									if (searchQuery.length > 1 ) {
+                    searchForPlaylist();
 										searchForSong();
 									}
 								}}
@@ -386,23 +444,49 @@ export function Timer() {
             </div>
 
             <div className = "music-search-options">
-                <button>Playlist</button>
-                <button>Songs</button>
+              <button onClick={handlePlaylistClick}>Playlist</button>
+              <button onClick={handleSongsClick}>Songs</button>
               </div>
 
-            <div className="songs-list">
-            {song
-                .map((track, i) => (
-                  <button
-                    key={track.id}
-                    className="song-item"
-                    onClick={() => selectSong(track.name)}
-                  >
-                    <img src = {track.album.images[0].url} width="100" height="100"></img> 
-                    <span className="song-name">{track.name}</span>
-                  </button>
-                ))}
-            </div>
+            {/* Conditional rendering of different blocks based on button click */}
+{/* Conditional rendering of different blocks based on button click */}
+        <div className="songs-list">
+                {songsBtnClicked  && !playlistBtnClicked  ? (
+                  // Block 1: If Playlist button is clicked, show the songs list
+                  song.map((track, i) => (
+                    <button
+                      key={track.id}
+                      className="song-item"
+                      onClick={() => selectSong(track.name)} // Example function to handle song selection
+                    >
+                      <img
+                        src={track.album.images[0].url}
+                        width="100"
+                        height="100"
+                        alt="Album Cover"
+                      />
+                      <span className="song-name">{track.name}</span>
+                    </button>
+                  ))
+                ) : (
+                  // Block 2: If Songs button is clicked, show the alternative message
+                  playlist.map((pl, i) => (
+                    <button
+                      key={pl.id}
+                      className="song-item"
+                      onClick={() => selectSong(pl.name)} // Example function to handle song selection
+                    >
+                      <img
+                        src={pl.images[0].url}
+                        width="100"
+                        height="100"
+                        alt="Album Cover"
+                      />
+                      <span className="song-name">{pl.name}</span>
+                    </button>
+                  ))
+                )}
+              </div>
           </div>
         </>
       )}
