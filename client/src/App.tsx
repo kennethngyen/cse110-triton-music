@@ -12,7 +12,7 @@ import { UserContext } from "./contexts/UserContext";
 import { json } from "stream/consumers";
 import { Signup } from "./pages/signup";
 
-//<Route path="/timer:time" element={<Timer />} /> may need to be what line 14 is changed to
+
 const App = () => {
 	const userContext = useContext(UserContext);
 	if (!userContext) {
@@ -64,5 +64,5 @@ const App = () => {
 		</div>
 	);
 };
-//<Route path="/timer" element={<Timer />} /> may need to be what line 14 is changed to
+
 export default App;
