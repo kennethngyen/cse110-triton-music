@@ -19,6 +19,7 @@ export function Profile() {
 	});
 
 	useEffect(() => {
+		//get following list at page load
 		const fetchFollowing = async () => {
 			try {
 				const token = localStorage.getItem("token");
@@ -37,8 +38,8 @@ export function Profile() {
 				}
 
 				const data = await response.json();
-				console.log(data);
-				setFollowing(data.data);
+				// console.log(data);
+				setFollowing(data.data); //set all the users following in the following users seciton
 			} catch (error) {
 				console.error("Error fetching following list:", error);
 			}
@@ -106,7 +107,7 @@ export function Profile() {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					Authorization: "Bearer " + localStorage.getItem("token"),
+					Authorization: "Bearer " + localStorage.getItem("token"), //if user unauthenticated, this logic won't run.
 				},
 				body: JSON.stringify({
 					follower: user?.userId || null,
@@ -116,7 +117,7 @@ export function Profile() {
 			if (!response.ok) {
 				console.error("Failed to follow user");
 			}
-			const result = await response.json();
+			const result = await response.json(); //if user is followed correctly, add to the following section
 			if (result.success) {
 				const followedUser = users.find((u: User) => u.id === followeeId);
 				if (followedUser) {
@@ -157,7 +158,7 @@ export function Profile() {
 	};
 
 	const handleSpotifyConnect = () => {
-		window.location.href = "http://localhost:8080/spotifylogin/"+user?.userId;
+		window.location.href = "http://localhost:8080/spotifylogin/" + user?.userId;
 	};
 
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,9 +176,9 @@ export function Profile() {
 		}
 	};
 
-
 	if (!user) {
 		return (
+			//auth wall on log in
 			<div>
 				<h1 className="text-3xl text-center text-red-500">Please log in.</h1>
 			</div>
@@ -207,31 +208,31 @@ export function Profile() {
 					</button>
 
 					<div className="following-feed">
-  <h3>Your Following</h3>
-  {following.map((friend) => (
-    <div key={friend.id} className="friend-item">
-      <div className="friend-icon">
-        <div className="circle"></div>
-        <button
-          className="follow-button unfollow"
-          onClick={() => handleUnfollow(friend.id)}
-        >
-          Unfollow
-        </button>
-      </div>
-      <div className="friend-info">
-        <p>{friend.name}</p>
-        <p>{friend.email}</p>
-        <p>
-          :{" "}
-          <button className="text-blue-500 underline">
-            No song played yet
-          </button>
-        </p>
-      </div>
-    </div>
-  ))}
-</div>
+						<h3>Your Following</h3>
+						{following.map((friend) => (
+							<div key={friend.id} className="friend-item">
+								<div className="friend-icon">
+									<div className="circle"></div>
+									<button
+										className="follow-button unfollow"
+										onClick={() => handleUnfollow(friend.id)}
+									>
+										Unfollow
+									</button>
+								</div>
+								<div className="friend-info">
+									<p>{friend.name}</p>
+									<p>{friend.email}</p>
+									<p>
+										:{" "}
+										<button className="text-blue-500 underline">
+											No song played yet
+										</button>
+									</p>
+								</div>
+							</div>
+						))}
+					</div>
 
 					<button className="signout-button" onClick={handleSignOut}>
 						Sign Out

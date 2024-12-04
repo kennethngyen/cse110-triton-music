@@ -79,17 +79,15 @@ export const MusicFeed = () => {
 				setIsLoading(false);
 			});
 
-
-		const getSpotifyAccessToken = async()  => {
+		const getSpotifyAccessToken = async () => {
 			const jsonData = await makeAuthRequest(`${API_BASE_URL}/spotifytoken`);
-            if (jsonData) {
+			if (jsonData) {
 				console.log(jsonData);
-                setAccessToken(jsonData.access_token);
-            }
+				setAccessToken(jsonData.access_token);
+			}
 		};
 
 		getSpotifyAccessToken();
-		
 	}, []);
 
 	//Search function
@@ -202,7 +200,7 @@ export const MusicFeed = () => {
 	};
 
 	const { user } = useUser();
-
+	//if user not log in, display auth wall
 	if (!user) {
 		return (
 			<div>
@@ -299,11 +297,9 @@ export const MusicFeed = () => {
 							<input
 								type="text"
 								value={searchQuery}
-								
 								onChange={(e) => {
-									
-									setSearchQuery(e.target.value)
-									if (searchQuery.length > 1 ) {
+									setSearchQuery(e.target.value);
+									if (searchQuery.length > 1) {
 										searchForSong();
 									}
 								}}
@@ -319,20 +315,23 @@ export const MusicFeed = () => {
 							/>
 						</div>
 						<div className="songs-list">
-						{song.map((track, i) => {
-							return (
-								<button
-								key={track.id}
-                    			className="song-item"
-                    			onClick={() => selectSong(track.id)}
-								
-								>
-									{track.name}
-									
-									<img src = {track.album.images[0].url} width="100" height="100"></img> 
-								</button>
-							)
-						})}
+							{song.map((track, i) => {
+								return (
+									<button
+										key={track.id}
+										className="song-item"
+										onClick={() => selectSong(track.id)}
+									>
+										{track.name}
+
+										<img
+											src={track.album.images[0].url}
+											width="100"
+											height="100"
+										></img>
+									</button>
+								);
+							})}
 						</div>
 					</div>
 				</>
