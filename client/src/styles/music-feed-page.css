@@ -1,188 +1,187 @@
 .feed-section {
-    margin: auto;
-    width: 1300px;
-    background-color: lightgray;
-    
-  }
+  margin: auto;
+  width: 1300px;
+  background-color: lightgray;
   
-  .share-feature {
-    width: 1200;
-  }
-  
-  .play-button-container {
-    position: relative;
-    width:50%;
-    margin-left: 100%;
-    margin-top: auto;
-    top: -100px;
-  }
-  
-  .play-button-container img {
-    width: 100%;
-    height: auto;
-  }
-  
-  .play-button-container .btn {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    background-color: lightgray;
-    color: white;
-    font-size: 16px;
-    padding: 12px 24px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-  
-  
-  
-  .share-button {
-    background-color: rgb(138, 53, 53);
-    color: white;
-    width: 1200px;
-    height: 50px;
-    border-radius: 12px;
-    margin-left: 0.1%;
-    font-size: 24px;
-  
-  }
-  
-  
-  
-  .share-item {
-    display: flex;
-    align-items: center;
-    background-color: rgb(228, 168, 168);
-    padding: 30px;
-    margin-bottom: 20px;
-    border-radius: 20px;
-  }
-  
-  .share-info {
-    margin-left: 10px;
-    width: 800px;
-    justify-content: center;
-  }
-  
-  .share-text {
-    font-weight: bold;
-    font-size: 28px;
-    align-self: center;
-  }
-  
-
-  .song-comments {
-    background-color: rgb(199, 194, 194);
-    color: black;
-    width: 900px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    font-weight: bold;
-    padding: 20px;
-  }
-
-    
-  .music-picker-btn {
-    position: relative;
-    background-color: lightgray;
-    right: -1000px;
-    top: -60px;
-    width: 200px;
-    
-    border-radius: 20px;
-  }
-  
-  .choose-btn {
-    display: inline-block;
-    background-color: gray;
-  }
-  
-  
-  ::placeholder {
-    color: black
-  }
-  
-  ul {
-    padding: 0px;
-    margin: 0px
-  }
-  
-  .friend-item {
-    display: flex;
-    align-items: center;
-    background-color: #fff;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 20px;
-  
-    
-  }
-  
-  .friend-info {
-    margin-left: 10px;
-    width: 800px;
-    font-weight: bold;
-  }
-  
-  .friend-comment {
-    font-weight: lighter;
-    margin-top: 30px;
-  }
-  
-  .song-description {
-    position: relative;
-    right: -1010px;
-    bottom: -10px;
-  
-  }
-  
-  .spotify-logo {
-    position: relative;
-    float: right;
-    clear: right;
-    width: 50px;
-    right: -400px;
-    top: -50px;
-  }
-
-
-  .search-input {
-    background-image: url("https://www.freeiconspng.com/img/26760");
-    width: 100%;
-    padding: 10px;
-    border: none;
-    border-radius: 20px;
-    background-color: #e0e0e0;
-    font-size: 16px;
-    padding-left: 40px;
-    z-index: 10000;
-  }
-
-  
-.search-btn-options {
-  justify-content: center;
-  display: flex;
 }
 
-  .search-btn-options button {
-    background-color: #e0e0e0;
-    color: black; /* White text */
-    padding: 10px 24px; /* Some padding */
-    cursor: pointer; /* Pointer/hand icon */
-    float: left; /* Float the buttons side by side */
-    border-radius: 30px;
-    margin-right: 10px;
-  }
+.share-feature {
+  width: 1200;
+}
+
+.play-button-container {
+  position: relative;
+  width:50%;
+  margin-left: 100%;
+  margin-top: auto;
+  top: -100px;
+}
+
+.play-button-container img {
+  width: 100%;
+  height: auto;
+}
+
+.play-button-container .btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  background-color: lightgray;
+  color: white;
+  font-size: 16px;
+  padding: 12px 24px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+
+
+.share-button {
+  background-color: rgb(138, 53, 53);
+  color: white;
+  width: 1200px;
+  height: 50px;
+  border-radius: 12px;
+  margin-left: 0.1%;
+  font-size: 24px;
+
+}
+
+
+
+.share-item {
+  display: flex;
+  align-items: center;
+  background-color: rgb(228, 168, 168);
+  padding: 30px;
+  margin-bottom: 20px;
+  border-radius: 20px;
+}
+
+.share-info {
+  margin-left: 10px;
+  width: 800px;
+  justify-content: center;
+}
+
+.share-text {
+  font-weight: bold;
+  font-size: 28px;
+  align-self: center;
+}
+
+
+.song-comments {
+  background-color: rgb(199, 194, 194);
+  color: black;
+  width: 900px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-weight: bold;
+  padding: 20px;
+}
 
   
+.music-picker-btn {
+  position: relative;
+  background-color: lightgray;
+  right: -1000px;
+  top: -60px;
+  width: 200px;
+  
+  border-radius: 20px;
+}
 
-  .search-btn-options button:hover {
-    background-color: #b0b0b0;
-  }
+.choose-btn {
+  display: inline-block;
+  background-color: gray;
+}
 
 
+::placeholder {
+  color: black
+}
+
+ul {
+  padding: 0px;
+  margin: 0px
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 20px;
 
   
+}
+
+.friend-info {
+  margin-left: 10px;
+  width: 800px;
+  font-weight: bold;
+}
+
+.friend-comment {
+  font-weight: lighter;
+  margin-top: 30px;
+}
+
+.song-description {
+  position: relative;
+  right: -1010px;
+  bottom: -10px;
+
+}
+
+.spotify-logo {
+  position: relative;
+  float: right;
+  clear: right;
+  width: 50px;
+  right: -400px;
+  top: -50px;
+}
+
+
+.search-input {
+  background-image: url("https://www.freeiconspng.com/img/26760");
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  background-color: #e0e0e0;
+  font-size: 16px;
+  padding-left: 40px;
+  z-index: 10000;
+}
+
+
+.search-btn-options {
+justify-content: center;
+display: flex;
+}
+
+.search-btn-options button {
+  background-color: #e0e0e0;
+  color: black; /* White text */
+  padding: 10px 24px; /* Some padding */
+  cursor: pointer; /* Pointer/hand icon */
+  float: left; /* Float the buttons side by side */
+  border-radius: 30px;
+  margin-right: 10px;
+}
+
+
+
+.search-btn-options button:hover {
+  background-color: #b0b0b0;
+}
+
+
+
