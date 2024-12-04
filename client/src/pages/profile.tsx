@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useUser } from "../contexts/UserContext";
 import { User } from "../types/types";
+import { toast } from "sonner";
 
 /**
  * Profile component handles user profile display, social connections,
@@ -39,6 +40,7 @@ export function Profile() {
         const token = localStorage.getItem("token");
         if (!token) {
           console.error("No token found");
+          toast.error("Authentication error");
         }
 
         const response = await fetch("http://localhost:8080/get-following", {
@@ -49,6 +51,7 @@ export function Profile() {
 
         if (!response.ok) {
           console.error("Failed to fetch following list");
+          toast.error("Failed to fetch following list");
         }
 
         const data = await response.json();
@@ -56,6 +59,7 @@ export function Profile() {
         setFollowing(data.data);
       } catch (error) {
         console.error("Error fetching following list:", error);
+        toast.error("Error fetching following list");
       }
     };
 
@@ -142,6 +146,7 @@ export function Profile() {
         }),
       });
       if (!response.ok) {
+        toast.error("Failed to follow user");
         console.error("Failed to follow user");
       }
       const result = await response.json();
@@ -150,10 +155,15 @@ export function Profile() {
         if (followedUser) {
           setFollowing((prevFollowing) => [...prevFollowing, followedUser]);
         }
-        alert("Followed successfully!");
+        toast.success("Successfully followed user", {
+          description: `You are now following`,
+        });
       }
     } catch (error) {
       console.error("Error following user:", error);
+      toast.error("Error following user", {
+        description: "Please try again later",
+      });
     }
   };
 
@@ -176,9 +186,15 @@ export function Profile() {
       });
       if (!response.ok) {
         console.error("Failed to unfollow user");
+        toast.error("Failed to unfollow user");
       }
-      alert("Unfollowed successfully!");
+      toast.error("unfollowed user", {
+        description: `Unfollowed`,
+      });
     } catch (error) {
+      toast.error("Error unfollowing user", {
+        description: "Please try again later",
+      });
       console.error("Error unfollowing user:", error);
     }
   };
