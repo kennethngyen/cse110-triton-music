@@ -155,15 +155,11 @@ export function Profile() {
         if (followedUser) {
           setFollowing((prevFollowing) => [...prevFollowing, followedUser]);
         }
-        toast.success("Successfully followed user", {
-          description: `You are now following`,
-        });
+        toast.success("Successfully followed user");
       }
     } catch (error) {
       console.error("Error following user:", error);
-      toast.error("Error following user", {
-        description: "Please try again later",
-      });
+      toast.error("Error following user");
     }
   };
 
@@ -188,9 +184,7 @@ export function Profile() {
         console.error("Failed to unfollow user");
         toast.error("Failed to unfollow user");
       }
-      toast.error("unfollowed user", {
-        description: `Unfollowed`,
-      });
+      toast.error("Unfollowed user");
     } catch (error) {
       toast.error("Error unfollowing user", {
         description: "Please try again later",
