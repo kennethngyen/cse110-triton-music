@@ -1,5 +1,10 @@
 import { Request, Response } from "express";
-import { requestUserAuthorization, requestAccessToken, requestUserInfo, userRequestToken } from "./spotify-utils";
+import {
+  requestUserAuthorization,
+  requestAccessToken,
+  requestUserInfo,
+  userRequestToken,
+} from "./spotify-utils";
 import { authenticateToken } from "../verification/auth-utils";
 
 export function createSpotifyEndpoints(app: any, state: string) {
@@ -15,11 +20,11 @@ export function createSpotifyEndpoints(app: any, state: string) {
 
   // get user info
   app.get("/userinfo", authenticateToken, (req: Request, res: Response) => {
-      requestUserInfo(req, res);
+    requestUserInfo(req, res);
   });
 
   // get spotify access token
   app.get("/spotifytoken", authenticateToken, (req: Request, res: Response) => {
-      userRequestToken(req, res);
+    userRequestToken(req, res);
   });
 }
