@@ -2,6 +2,9 @@ import "../styles/Timer.css";
 import React, { useState, useEffect } from "react";
 import "../App.css";
 import { SpotifyPlayer } from "./spotifyplayer";
+import { makeAuthRequest } from "../misc/auth";
+
+import { API_BASE_URL } from "../constants/constants";
 
 interface TimerSettings {
   pomodoro: number;
@@ -73,6 +76,10 @@ export function Timer() {
   const [settings, setSettings] = useState<TimerSettings>(
     initialState.settings
   );
+
+  const [song, setSong] = useState<any[]>([]);
+  const [accessToken, setAccessToken] = useState("");
+
   const [displayMinutes, setDisplayMinutes] = useState(() => {
     if (initialState.targetTime) {
       const remaining = initialState.targetTime - Date.now();
@@ -108,7 +115,45 @@ export function Timer() {
     } catch (e) {
       console.error("Error saving state:", e);
     }
+
+    const getSpotifyAccessToken = async()  => {
+			const jsonData = await makeAuthRequest(`${API_BASE_URL}/spotifytoken`);
+            if (jsonData) {
+				console.log(jsonData);
+                setAccessToken(jsonData.access_token);
+            }
+		};
+		getSpotifyAccessToken();
+
   }, [targetTime, isActive, tasks, currentMode, settings, selectedSong]);
+
+
+  async function searchForSong() {
+		//Get request to get artist ID
+		var searchParameters = {
+			method: "GET",
+			headers: {
+				"Content-type": "application/json",
+				Authorization: "Bearer " + accessToken,
+			},
+		};
+
+		var songTrack = await fetch(
+			"https://api.spotify.com/v1/search?q=" +
+				searchQuery +
+				"&type=track&limit=10",
+			searchParameters
+		)
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data);
+				console.log(data.tracks.items);
+				setSong(data.tracks.items);
+				//return data.tracks.items[0].name;
+			});
+	  }
+
+
 
   const getContainerClassName = () => {
     let baseClass = "timer-container";
@@ -326,31 +371,35 @@ export function Timer() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+
+                onChange={(e) => {
+									
+									setSearchQuery(e.target.value)
+									if (searchQuery.length > 1 ) {
+										searchForSong();
+									}
+								}}
                 placeholder="Search for music"
                 className="search-input"
+
               />
             </div>
 
             <div className = "music-search-options">
-                <button>Albums</button>
-                <button>Playlists</button>
+                <button>Playlist</button>
                 <button>Songs</button>
               </div>
 
             <div className="songs-list">
-              {songs
-                .filter((song) =>
-                  song.name.toLowerCase().includes(searchQuery.toLowerCase())
-                )
-                .map((song) => (
+            {song
+                .map((track, i) => (
                   <button
-                    key={song.id}
+                    key={track.id}
                     className="song-item"
-                    onClick={() => selectSong(song.name)}
+                    onClick={() => selectSong(track.name)}
                   >
-                    <span className="music-note">♪</span>
-                    <span className="song-name">{song.name}</span>
+                    <img src = {track.album.images[0].url} width="100" height="100"></img> 
+                    <span className="song-name">{track.name}</span>
                   </button>
                 ))}
             </div>
