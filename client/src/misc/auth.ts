@@ -1,3 +1,10 @@
+
+/**
+ * a convenient function to remove repeat code
+ * allows the client to make GET requests to the backend that require client authentication (with their localStorage jwt token)
+ * @param url (desired backend API endpoint url)
+ * @returns null if user has no token or request failed; if the request succeeded, then returns the jsonData of the GET request
+ */
 export const makeAuthRequest = async (url: string) => {
     const token = localStorage.getItem("token");
     if (token) {
