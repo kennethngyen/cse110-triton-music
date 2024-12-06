@@ -1,7 +1,9 @@
-import { Link, useParams } from "react-router-dom";
+import { json, Link, useParams } from "react-router-dom";
 import "../styles/music-feed-page.css";
 import { useState, useEffect } from "react";
 import { useUser } from "../contexts/UserContext";
+import { makeAuthRequest } from "../misc/auth";
+import { API_BASE_URL } from "../constants/constants";
 
 // Define the structure of a feed item
 interface FeedItem {
@@ -18,8 +20,6 @@ interface Song {
 	name: string;
 }
 
-const SPOTIFY_CLIENT_ID = process.env.CLIENT_ID as string;
-const SPOTIFY_CLIENT_SECRET = process.env.CLIENT_SECRET_ID as string;
 
 export const MusicFeed = () => {
 	// State variables
@@ -35,6 +35,7 @@ export const MusicFeed = () => {
 	const [searchInput, setSearchInput] = useState("");
 	const [accessToken, setAccessToken] = useState("");
 	const [albums, setAlbums] = useState<any[]>([]);
+	const [song, setSong] = useState<any[]>([]);
 
 	// Current user information (Replace with actual user data from context or props)
 	const currentUserID: string = "123"; // Replace with actual user ID
@@ -76,20 +77,15 @@ export const MusicFeed = () => {
 				setIsLoading(false);
 			});
 
-		var authParameters = {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/x-www-form-urlencoded",
-			},
-			body:
-				"grant_type=client_credentials&client_id=" +
-				SPOTIFY_CLIENT_ID +
-				"&client_secret=" +
-				SPOTIFY_CLIENT_SECRET,
+		const getSpotifyAccessToken = async () => {
+			const jsonData = await makeAuthRequest(`${API_BASE_URL}/spotifytoken`);
+			if (jsonData) {
+				console.log(jsonData);
+				setAccessToken(jsonData.access_token);
+			}
 		};
-		fetch("https://accounts.spotify.com/api/token", authParameters)
-			.then((result) => result.json())
-			.then((data) => setAccessToken(data.access_token));
+
+		getSpotifyAccessToken();
 	}, []);
 
 	//Search function
@@ -126,6 +122,7 @@ export const MusicFeed = () => {
 			.then((response) => response.json())
 			.then((data) => {
 				console.log(data);
+				console.log(data.items);
 				setAlbums(data.items);
 			});
 		//Display albums
@@ -144,15 +141,16 @@ export const MusicFeed = () => {
 		var songTrack = await fetch(
 			"https://api.spotify.com/v1/search?q=" +
 				searchQuery +
-				"&type=track&limit=7",
+				"&type=track&limit=10",
 			searchParameters
 		)
 			.then((response) => response.json())
 			.then((data) => {
-				return data.tracks.items[0].name;
+				console.log(data);
+				console.log(data.tracks.items);
+				setSong(data.tracks.items);
+				//return data.tracks.items[0].name;
 			});
-
-		console.log(songTrack);
 	}
 
 	// Handle sharing a new song by posting to the backend
@@ -200,7 +198,7 @@ export const MusicFeed = () => {
 	};
 
 	const { user } = useUser();
-
+	//if user not log in, display auth wall
 	if (!user) {
 		return (
 			<div>
@@ -297,26 +295,41 @@ export const MusicFeed = () => {
 							<input
 								type="text"
 								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
+								onChange={(e) => {
+									setSearchQuery(e.target.value);
+									if (searchQuery.length > 1) {
+										searchForSong();
+									}
+								}}
 								placeholder="Search for music"
 								className="search-input"
+
+								/*onKeyDown = {event => {
+									if (event.key == "Enter") {
+										search();
+										searchForSong();
+									}
+								}}*/
 							/>
 						</div>
 						<div className="songs-list">
-							{songs
-								.filter((song) =>
-									song.name.toLowerCase().includes(searchQuery.toLowerCase())
-								)
-								.map((song: Song) => (
+							{song.map((track, i) => {
+								return (
 									<button
-										key={song.id}
+										key={track.id}
 										className="song-item"
-										onClick={() => selectSong(song.name)}
+										onClick={() => selectSong(track.id)}
 									>
-										<span className="music-note">♪</span>
-										<span className="song-name">{song.name}</span>
+										{track.name}
+
+										<img
+											src={track.album.images[0].url}
+											width="100"
+											height="100"
+										></img>
 									</button>
-								))}
+								);
+							})}
 						</div>
 					</div>
 				</>

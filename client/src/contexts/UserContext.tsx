@@ -22,6 +22,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 	const clearUser = () => setUser(null);
 
 	return (
+		//create a user context with user, setUser, and clearUser utilities
 		<UserContext.Provider value={{ user, setUser, clearUser }}>
 			{children}
 		</UserContext.Provider>

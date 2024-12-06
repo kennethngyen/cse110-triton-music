@@ -1,8 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { API_BASE_URL } from "../constants/constants";
+import { makeAuthRequest } from "../misc/auth";
+
+interface Track {
+    name: string;
+    artists: { name: string }[];
+    album: { images: { url: string }[] };
+}
 
 interface SpotifyPlayerProps {
-    accessToken: string;
+    token: string;
 }
 
 export const SpotifyPlayer = () => {
@@ -10,143 +17,130 @@ export const SpotifyPlayer = () => {
 
     useEffect(() => {
         const getAccessToken = async () => {
-            const token = localStorage.getItem("token");
-			if (token) {
-				try {
-					const response = await fetch(`${API_BASE_URL}/spotifytoken`, {
-						method: "GET",
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"Content-Type": "application/json",
-						},
-					});
-					if (!response.ok) {
-						console.error("No match from auth token to User object");
-						throw new Error("No match from auth token to User object");
-					}
-
-					const jsonData = await response.json();
-					setToken(jsonData.access_token);
-				} catch (err) {
-					console.error("Error fetching user data:", err);
-					localStorage.removeItem("token"); // Remove token if it’s invalid
-				}
-			}
+            const jsonData = await makeAuthRequest(`${API_BASE_URL}/spotifytoken`);
+            if (jsonData) {
+                setToken(jsonData.access_token);
+            }
         };
 
         getAccessToken();
-
     }, []);
 
     return (
         <div>
-          {accessToken ? (
-            <SpotifyPlayerHandler accessToken={accessToken} />
-          ) : (
-            <p>Please log in to Spotify.</p>
-          )}
+            {accessToken ? (
+                <SpotifyPlayerHandler token={accessToken} />
+            ) : (
+                <p>Please log in to Spotify.</p>
+            )}
         </div>
-      );
+    );
 };
 
-export const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = ({
-    accessToken,
-}) => {
-    const playerRef = useRef<any>(null);
-    const [isReady, setIsReady] = useState(false);
-    const [isPlaying, setIsPlaying] = useState(false);
+const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = (props) => {
+    const [is_paused, setPaused] = useState<boolean>(false);
+    const [is_active, setActive] = useState<boolean>(false);
+    const [player, setPlayer] = useState<Spotify.Player | undefined>(undefined);
+    const [current_track, setTrack] = useState<Track | undefined>(undefined);
+    const count = useRef(1);
 
-    // Initialize the Spotify Player when the component mounts
     useEffect(() => {
-        if (window.Spotify) {
+        const script = document.createElement("script");
+        script.src = "https://sdk.scdn.co/spotify-player.js";
+        script.async = true;
+        document.body.appendChild(script);
+
+        window.onSpotifyWebPlaybackSDKReady = () => {
             const player = new window.Spotify.Player({
-                name: "React Spotify Player 2",
-                getOAuthToken: (cb: Function) => {
-                    cb(accessToken);
+                name: "Triton Music Web Playback SDK" + count.current,
+                getOAuthToken: (cb: (token: string) => void) => {
+                    cb(props.token);
                 },
                 volume: 0.5,
             });
 
-            // Set up event listeners for the player
-            player.on("initialization_error", (e: any) => {
-                console.error(e);
+            setPlayer(player);
+
+            player.addListener("ready", ({ device_id }) => {
+                console.log("Ready with Device ID", device_id);
             });
 
-            player.on("authentication_error", (e: any) => {
-                console.error(e);
+            player.addListener("not_ready", ({ device_id }) => {
+                console.log("Device ID has gone offline", device_id);
             });
 
-            player.on("account_error", (e: any) => {
-                console.error(e);
-            });
-
-            player.on("playback_error", (e: any) => {
-                console.error(e);
-            });
-
-            // When the player is ready
-            player.on("ready", ({ device_id }: any) => {
-                console.log("The Web Playback SDK is ready.");
-                setIsReady(true);
-                playerRef.current = player;
-            });
-
-            // On playback state change
-            player.on("player_state_changed", (state: any) => {
+            player.addListener("player_state_changed", (state) => {
                 if (!state) return;
-                setIsPlaying(state.paused);
+
+                setTrack(state.track_window.current_track);
+                setPaused(state.paused);
+
+                player.getCurrentState().then((state) => {
+                    !state ? setActive(false) : setActive(true);
+                });
             });
 
-            // Connect the player to Spotify
             player.connect();
-            console.log(player)
-        }
-        console.log(window.Spotify)
-        return () => {
-            if (playerRef.current) {
-                playerRef.current.disconnect();
-            }
+            count.current += 1;
         };
-    }, [accessToken]);
+    }, []);
 
-    // Handle play/pause button
-    const handlePlayPause = () => {
-        if (!playerRef.current) return;
+    if (!is_active) {
+        return (
+            <div className="container">
+                <div className="main-wrapper">
+                    <b>
+                        Instance not active. Transfer your playback using your
+                        Spotify app
+                    </b>
+                </div>
+            </div>
+        );
+    } else {
+        return (
+            <div className="container">
+                <div className="main-wrapper">
+                    {current_track && (
+                        <>
+                            <img
+                                src={current_track.album.images[0].url}
+                                className="now-playing__cover"
+                                alt=""
+                                width="200"
+                            />
+                            <div className="now-playing__side">
+                                <div className="now-playing__name">
+                                    {current_track.name}
+                                </div>
+                                <div className="now-playing__artist">
+                                    {current_track.artists[0].name}
+                                </div>
 
-        if (isPlaying) {
-            playerRef.current.pause();
-        } else {
-            playerRef.current.resume();
-        }
-    };
+                                <button
+                                    className="btn-spotify"
+                                    onClick={() => player?.previousTrack()}
+                                >
+                                    &lt;&lt;
+                                </button>
 
-    // Handle skipping tracks
-    const handleSkip = () => {
-        if (!playerRef.current) return;
-        playerRef.current.skipToNext();
-    };
+                                <button
+                                    className="btn-spotify"
+                                    onClick={() => player?.togglePlay()}
+                                >
+                                    {is_paused ? "PLAY" : "PAUSE"}
+                                </button>
 
-    // Handle going back to previous track
-    const handlePrevious = () => {
-        if (!playerRef.current) return;
-        playerRef.current.skipToPrevious();
-    };
-
-    // Render the component
-    return (
-        <div>
-            <h2>Spotify Player</h2>
-            {isReady ? (
-                <>
-                    <button onClick={handlePlayPause}>
-                        {isPlaying ? "Play" : "Pause"}
-                    </button>
-                    <button onClick={handleSkip}>Next</button>
-                    <button onClick={handlePrevious}>Previous</button>
-                </>
-            ) : (
-                <p>Loading player...</p>
-            )}
-        </div>
-    );
+                                <button
+                                    className="btn-spotify"
+                                    onClick={() => player?.nextTrack()}
+                                >
+                                    &gt;&gt;
+                                </button>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        );
+    }
 };

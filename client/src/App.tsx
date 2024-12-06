@@ -59,7 +59,6 @@ const App = () => {
         <Route path="/music-feed" element={<MusicFeed />} />
         <Route path="/study" element={<Timer />} />
         <Route path="/profile/:name" element={<Profile />} />
-        <Route path="/player" element={<SpotifyPlayer />} />
       </Routes>
     </div>
   );
