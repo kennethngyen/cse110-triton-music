@@ -194,7 +194,7 @@ export async function requestUserInfo(req: Request, res: Response) {
     });
     const jsonResponse = await response.json();
 
-    console.log(jsonResponse);
+    // console.log(jsonResponse);
 
     res.status(200).send(jsonResponse);
 }

@@ -2,16 +2,35 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { BrowserRouter } from "react-router-dom";
 import { Timer } from "./timer";
-import { UserProvider } from "../contexts/UserContext";
+import { UserContext, UserProvider } from "../contexts/UserContext";
 //"test": "react-scripts test --watchAll --testMatch **/src/**/*.test.tsx", in package.json
 
 describe("Timer Component", () => {
+    const mockUser = {
+		userId: "123",
+		username: "testuser",
+	};
+
+	const MockUserProvider: React.FC<{ children: React.ReactNode }> = ({
+		children,
+	}) => (
+		<UserContext.Provider
+			value={{
+				user: mockUser,
+				setUser: jest.fn(),
+				clearUser: jest.fn(),
+			}}
+		>
+			{children}
+		</UserContext.Provider>
+	);
+
 	const renderTimer = () => {
 		render(
 			<BrowserRouter>
-				<UserProvider>
+				<MockUserProvider>
 					<Timer />
-				</UserProvider>
+				</MockUserProvider>
 			</BrowserRouter>
 		);
 	};
