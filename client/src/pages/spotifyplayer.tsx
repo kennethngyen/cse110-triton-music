@@ -37,53 +37,80 @@ export const SpotifyPlayer = () => {
     );
 };
 
-const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = (props) => {
+const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = ({ token }: SpotifyPlayerProps) => {
     const [is_paused, setPaused] = useState<boolean>(false);
     const [is_active, setActive] = useState<boolean>(false);
     const [player, setPlayer] = useState<Spotify.Player | undefined>(undefined);
     const [current_track, setTrack] = useState<Track | undefined>(undefined);
     const count = useRef(1);
+    const playerInitialized = useRef(false);
 
     useEffect(() => {
-        const script = document.createElement("script");
-        script.src = "https://sdk.scdn.co/spotify-player.js";
-        script.async = true;
-        document.body.appendChild(script);
+        if (playerInitialized.current) return;  // If player is already initialized, skip
+
+        if (!document.getElementById("spotify-sdk-script")) {
+            const script = document.createElement("script");
+            script.src = "https://sdk.scdn.co/spotify-player.js";
+            script.async = true;
+            script.id = "spotify-sdk-script";  // Add an ID to avoid duplicate scripts
+            document.body.appendChild(script);
+        }
 
         window.onSpotifyWebPlaybackSDKReady = () => {
-            const player = new window.Spotify.Player({
+            if (player) {
+                console.log("Player is already initialized");
+                return; // If player is already initialized, prevent double initialization
+            }
+            
+            const newPlayer = new window.Spotify.Player({
                 name: "Triton Music Web Playback SDK" + count.current,
                 getOAuthToken: (cb: (token: string) => void) => {
-                    cb(props.token);
+                    cb(token);
                 },
                 volume: 0.5,
             });
 
-            setPlayer(player);
-
-            player.addListener("ready", ({ device_id }) => {
+            newPlayer.addListener("ready", ({ device_id }) => {
                 console.log("Ready with Device ID", device_id);
             });
 
-            player.addListener("not_ready", ({ device_id }) => {
+            newPlayer.addListener("not_ready", ({ device_id }) => {
                 console.log("Device ID has gone offline", device_id);
             });
 
-            player.addListener("player_state_changed", (state) => {
+            newPlayer.addListener("player_state_changed", (state) => {
                 if (!state) return;
 
                 setTrack(state.track_window.current_track);
                 setPaused(state.paused);
 
-                player.getCurrentState().then((state) => {
-                    !state ? setActive(false) : setActive(true);
-                });
+                if (newPlayer) {
+                    newPlayer.getCurrentState().then((state) => {
+                        !state ? setActive(false) : setActive(true);
+                    }).catch((error) => {
+                        console.error("Error getting current state", error);
+                    });
+                }
             });
 
-            player.connect();
+            newPlayer.connect();
+            setPlayer(newPlayer);
+
+            playerInitialized.current = true;
+
             count.current += 1;
         };
-    }, []);
+
+        return () => {
+            if (player) {
+                player.disconnect();  // Clean up the player instance on unmount
+            }
+        };
+    }, [token]);
+
+    if (!player) {
+        return <p>Loading Spotify player...</p>;
+    }
 
     if (!is_active) {
         return (
