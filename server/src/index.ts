@@ -31,7 +31,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 createAuthEndpoints(app);
-createFeedEndpoints(app, feedItems, users);
+createFeedEndpoints(app);
 createAccountEndpoints(app, users);
 createSpotifyEndpoints(app, state);
 createUserEndpoints(app);

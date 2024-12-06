@@ -1,71 +1,43 @@
-import { FeedItem, User } from "../types";
 import { Request, Response } from "express";
+import { events } from "../db/schema"; // Use the events table for feed data
+import { db } from "../db/db";
 
 /**
- * posts the client's feed item to the feedItems const on the backend
- * TODO: eventually add the feed item to the database
+ * Create a new feed item in the events table.
  */
-export function createFeedItem(
-    req: Request,
-    res: Response,
-    feedItems: FeedItem[]
-) {
-    const { id, content, songID, userID, username } = req.body;
+export async function createFeedItem(req: Request, res: Response) {
+    const user = (req as any).user; // Extract user info from authentication middleware
 
-    if (!id || !content || !songID || !userID || !username) {
-        return res.status(400).send({ error: "Missing required fields" });
+    if (!user) {
+        return res.status(401).json({ success: false, error: "Unauthorized: User information missing" });
     }
 
-    const newFeedItem: FeedItem = {
-        id: id,
-        content: content,
-        songID: songID,
-        userID: userID,
-        username: username,
+    const { spotifyId, description } = req.body;
+
+    if (!spotifyId || !description) {
+        return res.status(400).json({ error: "Missing required fields: spotifyId or description" });
+    }
+
+    const newFeedItem = {
+        spotifyId,
+        description,
+        date: new Date(), // Use a `Date` object to satisfy the type requirement
     };
 
-    feedItems.push(newFeedItem);
-    res.status(201).send(newFeedItem);
-}
+    try {
+        const insertedItem = await db
+            .insert(events)
+            .values(newFeedItem)
+            .returning({
+                id: events.id,
+                spotifyId: events.spotifyId,
+                description: events.description,
+                date: events.date,
+            }); // Explicitly specify fields to return
 
-/* export function deleteFeedItem(req: Request, res: Response, feedItems: FeedItem[]) {
-
-} */
-
-/**
- * gets the entire feedItems const to the client
- */
-export function getFeed(req: Request, res: Response, feedItems: FeedItem[]) {
-    res.status(200).send({ data: feedItems });
-}
-
-/**
- * filters the feedItems for only the friends of the client
- */
-export function getFriendFeed(
-    req: Request,
-    res: Response,
-    feedItems: FeedItem[],
-    users: User[]
-) {
-    const { userID } = req.params;
-
-    if (!userID) {
-        return res.status(400).send({ error: "Missing required userID" });
+        res.status(201).json({ success: true, data: insertedItem[0] });
+    } catch (error) {
+        console.error("Error creating feed item:", error);
+        res.status(500).json({ success: false, error: "An error occurred while creating the feed item" });
     }
-
-    /*
-    perhaps a faster way to do this,
-    consider changing this implementation for scalability
-    */
-
-    const index = users.findIndex((user: User) => user.userID == userID);
-    if (index < 0) {
-        return res.status(400).send({ error: "user does not exist" });
-    }
-
-    const friends = users[index].friends;
-    const filteredFeed = feedItems.filter((item: FeedItem) => friends.indexOf(item.userID) != -1);
-
-    res.status(200).send({ data: filteredFeed });
 }
