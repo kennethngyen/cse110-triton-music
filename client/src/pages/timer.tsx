@@ -22,6 +22,8 @@ interface TimerState {
 }
 
 export function Timer() {
+  // Factory function for creating default timer state
+  // Used when no saved state exists or when saved state is invalid
   const getDefaultState = (): TimerState => ({
     targetTime: null,
     isActive: false,
@@ -33,8 +35,12 @@ export function Timer() {
       longBreak: 15,
     },
     selectedSong: "",
-  });
-
+  });    
+  /**
+   * Loads timer state from localStorage with error handling
+   * Includes validation and fallback to default state if necessary
+   * @returns {TimerState} Initial state for the timer
+   */
   const loadInitialState = (): TimerState => {
     const savedState = localStorage.getItem("timerState");
     if (savedState) {
@@ -61,7 +67,7 @@ export function Timer() {
   };
 
   const initialState = loadInitialState();
-
+ // State initialization with values from localStorage or defaults
   const [targetTime, setTargetTime] = useState<number | null>(
     initialState.targetTime
   );
@@ -76,6 +82,10 @@ export function Timer() {
   const [settings, setSettings] = useState<TimerSettings>(
     initialState.settings
   );
+    /**
+   * Initialize display time based on saved state or settings
+   * Handles both cases where timer was running or stopped
+   */
 
   const[playlist, setPlaylist]= useState<any[]>([]);
 
@@ -98,12 +108,17 @@ export function Timer() {
     }
     return 0;
   });
-
+  // Mock song data - would typically come from an API
   const songs = [
     { id: 1, name: "Song A" },
     { id: 2, name: "Song B" },
     { id: 3, name: "Song C" },
   ];
+
+   /**
+   * Persist timer state to localStorage whenever relevant state changes
+   * Wrapped in try-catch to handle potential storage quota errors
+   */
 
   const resetPlaylistClicked = () => {
     setPlaylistClicked(false); // Reset to false after displaying songs
@@ -150,6 +165,7 @@ export function Timer() {
 
   }, [targetTime, isActive, tasks, currentMode, settings, selectedSong]);
 
+  //used to update the color of the timer container when switching modes
 
   async function searchForSong() {
 		//Get request to get artist ID
@@ -218,7 +234,11 @@ export function Timer() {
     if (currentMode === "Long Break") return `${baseClass} long-break`;
     return baseClass;
   };
-
+  /**
+   * Handles mode switching (Pomodoro/Short Break/Long Break)
+   * Resets timer state and updates display time based on mode settings
+   * @param mode - The timer mode to switch to
+   */
   const selectMode = (mode: string) => {
     setIsActive(false);
     setTargetTime(null);
@@ -238,7 +258,11 @@ export function Timer() {
     setDisplayMinutes(minutes);
     setDisplaySeconds(0);
   };
-
+ /**
+   * Handles start/pause functionality
+   * Calculates target completion time when starting
+   * Preserves remaining time when pausing
+   */
   const toggle = () => {
     if (!isActive) {
       const currentTimeInMs = Date.now();
@@ -258,7 +282,11 @@ export function Timer() {
     }
     setIsActive(!isActive);
   };
-
+/**
+   * Main timer logic
+   * Updates display time and handles timer completion
+   * Cleans up interval on unmount or when timer is inactive
+   */
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
@@ -268,14 +296,16 @@ export function Timer() {
         const remaining = targetTime - now;
 
         if (remaining <= 0) {
+          // Timer completed
           setIsActive(false);
           setTargetTime(null);
           setDisplayMinutes(0);
           setDisplaySeconds(0);
-
+          // Play notification sound not working correctly since incorrect path
           const audio = new Audio("/path-to-your-sound.mp3");
           audio.play().catch((e) => console.log("Audio play failed:", e));
         } else {
+           // Update display time
           setDisplayMinutes(Math.floor(remaining / (1000 * 60)));
           setDisplaySeconds(Math.floor((remaining % (1000 * 60)) / 1000));
         }
@@ -289,6 +319,10 @@ export function Timer() {
     };
   }, [isActive, targetTime]);
 
+  /**
+   * Task management functions
+   * Handle adding and removing tasks from the list
+   */
   const addTask = () => {
     if (newTask.trim()) {
       setTasks((currentTasks) => [...currentTasks, newTask.trim()]);
@@ -305,18 +339,28 @@ export function Timer() {
       addTask();
     }
   };
+   /**
+   * Song selection handler
+   * Updates selected song and closes selection 
+   */
 
   const selectSong = (songName: string) => {
     setSelectedSong(songName);
     setShowSongSelect(false);
   };
 
+  /**
+   * Settings update handler
+   * Updates timer settings and resets current timer state
+   * Adjusts display time based on current mode
+   */
   const updateSettings = (newSettings: TimerSettings) => {
     setSettings(newSettings);
     setShowSettings(false);
     setIsActive(false);
     setTargetTime(null);
 
+    // Update display time based on current mode
     switch (currentMode) {
       case "Pomodoro":
         setDisplayMinutes(newSettings.pomodoro);
