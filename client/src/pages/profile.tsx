@@ -98,15 +98,18 @@ export function Profile() {
         const success = urlParams.get("success");
         const error = urlParams.get("error");
 
-        const jsonData = await makeAuthRequest(`${API_BASE_URL}/spotifytoken`);
-
         if (error) {
             setSpotifyStatus("failed");
             localStorage.setItem("spotifyConnectionStatus", "failed");
+            return;
         } else if (success === "true") {
             setSpotifyStatus("connected");
             localStorage.setItem("spotifyConnectionStatus", "connected");
-        } else if (!jsonData) {
+            return;
+        } 
+        const jsonData = await makeAuthRequest(`${API_BASE_URL}/spotifytoken`);
+
+        if (!jsonData) {
             setSpotifyStatus("idle");
             localStorage.setItem("spotifyConnectionStatus", "idle");
         } else if (jsonData) {
