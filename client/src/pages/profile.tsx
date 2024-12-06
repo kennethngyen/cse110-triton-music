@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useUser } from "../contexts/UserContext";
 import { User } from "../types/types";
 import { toast } from "sonner";
+import { makeAuthRequest } from "../misc/auth";
+import { API_BASE_URL } from "../constants/constants";
 
 /**
  * Profile component handles user profile display, social connections,
@@ -91,17 +93,28 @@ export function Profile() {
    * Checks URL parameters for success/failure and updates status accordingly
    */
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const success = urlParams.get("success");
-    const error = urlParams.get("error");
+    const checkSpotifyStatus = async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const success = urlParams.get("success");
+        const error = urlParams.get("error");
 
-    if (error) {
-      setSpotifyStatus("failed");
-      localStorage.setItem("spotifyConnectionStatus", "failed");
-    } else if (success === "true") {
-      setSpotifyStatus("connected");
-      localStorage.setItem("spotifyConnectionStatus", "connected");
-    }
+        const jsonData = await makeAuthRequest(`${API_BASE_URL}/spotifytoken`);
+
+        if (error) {
+            setSpotifyStatus("failed");
+            localStorage.setItem("spotifyConnectionStatus", "failed");
+        } else if (success === "true") {
+            setSpotifyStatus("connected");
+            localStorage.setItem("spotifyConnectionStatus", "connected");
+        } else if (!jsonData) {
+            setSpotifyStatus("idle");
+            localStorage.setItem("spotifyConnectionStatus", "idle");
+        } else if (jsonData) {
+            setSpotifyStatus("connected");
+            localStorage.setItem("spotifyConnectionStatus", "connected");
+        }
+    };
+    checkSpotifyStatus();
   }, []);
   /**
    * Handles user search functionality
@@ -197,7 +210,7 @@ export function Profile() {
    * Redirects to Spotify login page
    */
   const handleSpotifyConnect = () => {
-    window.location.href = "http://localhost:8080/spotifylogin";
+    window.location.href = "http://localhost:8080/spotifylogin/"+user?.userId;
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

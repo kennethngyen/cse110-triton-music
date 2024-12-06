@@ -38,9 +38,9 @@ export const Home = () => {
 			setLoginStatus("success"); // Set success status
 
 			// Redirect after successful login
-			setTimeout(() => {
-				navigate("/music-feed");
-			}, 2000);
+			//setTimeout(() => {
+				//navigate("/music-feed");
+			//}, 2000);
 		} catch (err) {
 			console.error(err);
 			setLoginStatus("error"); // Set error status
@@ -71,6 +71,16 @@ export const Home = () => {
 			alert(err || "An error occurred during signup.");
 		}
 	};
+
+    //if user is logged in, navigate to music feed page
+    if (user) {
+        //setLoginStatus("success"); // Set success status
+
+        // Redirect after successful login
+        setTimeout(() => {
+            navigate("/music-feed");
+        }, 1);
+    }
 
 	return (
 		<div className="relative flex flex-col">

@@ -5,6 +5,7 @@ import { SpotifyPlayer } from "./spotifyplayer";
 import { makeAuthRequest } from "../misc/auth";
 
 import { API_BASE_URL } from "../constants/constants";
+import { useUser } from "../contexts/UserContext";
 
 interface TimerSettings {
   pomodoro: number;
@@ -374,6 +375,16 @@ export function Timer() {
     }
     setDisplaySeconds(0);
   };
+
+  const { user } = useUser();
+  //if user not log in, display auth wall
+    if (!user) {
+        return (
+            <div>
+                <h1 className="text-3xl text-center text-red-500">Please log in.</h1>
+            </div>
+        );
+    }
 
   return (
     <div className={getContainerClassName()}>

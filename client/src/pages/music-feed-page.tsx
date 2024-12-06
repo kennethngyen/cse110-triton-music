@@ -82,7 +82,9 @@ export const MusicFeed = () => {
 			if (jsonData) {
 				console.log(jsonData);
 				setAccessToken(jsonData.access_token);
-			}
+			} else {
+                setAccessToken("failed");
+            }
 		};
 
 		getSpotifyAccessToken();
@@ -207,12 +209,15 @@ export const MusicFeed = () => {
 		);
 	}
 
-    if (accessToken == "") {
+    if (accessToken == "failed") {
         return (
 			<div>
 				<h1 className="text-3xl text-center text-red-500">Please connect your Spotify account.</h1>
 			</div>
 		);
+    }
+    if (accessToken == "") {
+        return <></>;
     }
 
 	return (

@@ -13,7 +13,7 @@ export function createFollowingEndpoints(app: any) {
             }
 
             const { follower, followee } = req.body;
-            console.log(followee, follower);
+            // console.log(followee, follower);
             if (!follower || !followee) {
                 return res.status(400).json({ success: false, error: 'Follower and followee IDs are required' });
             }
