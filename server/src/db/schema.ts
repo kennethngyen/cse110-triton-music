@@ -8,7 +8,9 @@ export const events = sqliteTable("songs", {
         .$defaultFn(() => crypto.randomUUID()),
     spotifyId: text("spotifyId", { length: 255 }).notNull(),
     description: text("description", { length: 10000 }),
-    date: int("date", { mode: "timestamp" }).notNull()
+    date: int("date", { mode: "timestamp" }).notNull(),
+    username: text().notNull(),
+    songname: text().notNull()
 })
 
 export const usersTable = sqliteTable("users", {

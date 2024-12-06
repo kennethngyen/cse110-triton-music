@@ -8,16 +8,18 @@ import { API_BASE_URL } from "../constants/constants";
 // Define the structure of a feed item
 interface FeedItem {
 	id: string;
-	content: string;
-	songID: string;
+	spotifyId: string;
+    description: string;
 	userID: string;
 	username: string;
+    songname: string;
 }
 
 // Define the structure of a song
 interface Song {
 	id: number;
 	name: string;
+    spotifyId: string;
 }
 
 
@@ -26,7 +28,7 @@ export const MusicFeed = () => {
 	const [showSettings, setShowSettings] = useState<boolean>(false);
 	const [showSongSelect, setShowSongSelect] = useState<boolean>(false);
 	const [searchQuery, setSearchQuery] = useState<string>("");
-	const [selectedSong, setSelectedSong] = useState<string>("");
+	const [selectedSong, setSelectedSong] = useState<Song | null>(null);
 	const [comments, setComments] = useState<string>("");
 	const [feedItems, setFeedItems] = useState<FeedItem[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -37,45 +39,72 @@ export const MusicFeed = () => {
 	const [albums, setAlbums] = useState<any[]>([]);
 	const [song, setSong] = useState<any[]>([]);
 
-	// Current user information (Replace with actual user data from context or props)
-	const currentUserID: string = "123"; // Replace with actual user ID
-	const currentUsername: string = "CurrentUser"; // Replace with actual username
+	// Get current user from context
+    const { user } = useUser();
+    const token = localStorage.getItem("token");
 
 	// Predefined songs list
-	const songs: Song[] = [
-		{ id: 1, name: "Song A" },
-		{ id: 2, name: "Song B" },
-		{ id: 3, name: "Song C" },
-	];
+    
+    const songs: Song[] = [
+        { id: 1, name: "Shape of You", spotifyId: "7qiZfU4dY1lWllzX7mPBI3" },
+        { id: 2, name: "Blinding Lights", spotifyId: "0VjIjW4GlUZAMYd2vXMi3b" },
+        { id: 3, name: "Levitating", spotifyId: "6JWc4iAiJ9KNSqqNYIRxjL" },
+    ]; 
 
-	const selectSong = (songName: string): void => {
-		setSelectedSong(songName);
+    // Function to get song name from spotifyId
+    const getSongNameBySpotifyId = (spotifyId: string): string => {
+        const song = songs.find((song) => song.spotifyId === spotifyId);
+        return song ? song.name : "Unknown Song";
+    };
+
+	const selectSong = (song: Song): void => {
+		setSelectedSong(song);
+        console.log("INCOMING SONG");
+        console.log(song);
 		setShowSongSelect(false);
 	};
 
 	// Fetch feed items from the backend when the component mounts
 	useEffect(() => {
+        if (!user || !token) return;
+        
 		setIsLoading(true);
 		setError("");
 
-		// Ensure the backend URL is consistent.
-		fetch("http://localhost:8080/feed")
-			.then((response) => {
-				if (!response.ok) {
-					throw new Error(`HTTP error! Status: ${response.status}`);
-				}
-				return response.json();
-			})
-			.then((data: { data: FeedItem[] }) => {
-				console.log("Fetched feed items:", data.data);
-				setFeedItems(data.data);
-				setIsLoading(false);
-			})
-			.catch((error) => {
-				console.error("Error fetching feed data:", error);
-				setError("Failed to load feed. Please try again later.");
-				setIsLoading(false);
-			});
+		const fetchFeed = async () => {
+            setIsLoading(true);
+            setError("");
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/feed`, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP error! Status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Fetched feed items:", data.data);
+                
+                // Map feed items to include songName
+                const feedItemsWithSongName = data.data.map((item: FeedItem) => ({
+                    ...item,
+                }));
+
+                setFeedItems(feedItemsWithSongName);
+            } catch (error: any) {
+                console.error("Error fetching feed data:", error);
+                setError("Failed to load feed. Please try again later.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
 		const getSpotifyAccessToken = async () => {
 			const jsonData = await makeAuthRequest(`${API_BASE_URL}/spotifytoken`);
@@ -87,8 +116,61 @@ export const MusicFeed = () => {
             }
 		};
 
+        fetchFeed();
 		getSpotifyAccessToken();
 	}, []);
+
+    /**
+     * Share a new song by sending a POST request to /feed.
+     */
+    const shareSong = async (): Promise<void> => {
+        if (!selectedSong) {
+            alert("Please select a song before sharing.");
+            return;
+        }
+
+        try {
+            if (!token) {
+                throw new Error("No authentication token found.");
+            }
+
+            const response = await fetch(`${API_BASE_URL}/feed`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    spotifyId: selectedSong.spotifyId,
+                    description: comments,
+                    songname: selectedSong.name,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to share the song.");
+            }
+
+            const data = await response.json();
+            console.log("Shared new feed item:", data.data);
+
+            // Add songName to the new feed item
+            const newFeedItem = {
+                ...data.data,
+                username: user?.username,
+                songname: selectedSong.name,
+            };
+
+            // Optimistically update the UI
+            setFeedItems([newFeedItem, ...feedItems]);
+            setComments("");
+            setSelectedSong(null);
+        } catch (error: any) {
+            console.error("Error sharing feed item:", error);
+            setError(error.message || "Failed to share the song. Please try again.");
+        }
+    };
 
 	//Search function
 
@@ -155,51 +237,6 @@ export const MusicFeed = () => {
 			});
 	}
 
-	// Handle sharing a new song by posting to the backend
-	const handleShare = (): void => {
-		if (!selectedSong) {
-			alert("Please select a song before sharing.");
-			return;
-		}
-
-		const newFeedItem: FeedItem = {
-			id: Date.now().toString(), // Generates a unique ID based on timestamp
-			content: comments,
-			songID: selectedSong,
-			userID: currentUserID,
-			username: currentUsername,
-		};
-
-		// Optimistically update the UI
-		setFeedItems([newFeedItem, ...feedItems]);
-		setComments("");
-		setSelectedSong("");
-
-		// POST the new feed item to the backend
-		fetch("http://localhost:5000/feed", {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify(newFeedItem),
-		})
-			.then((response) => {
-				if (!response.ok) {
-					throw new Error(`HTTP error! Status: ${response.status}`);
-				}
-				return response.json();
-			})
-			.then((data: FeedItem) => {
-				console.log("Posted new feed item:", data);
-			})
-			.catch((error) => {
-				console.error("Error posting feed item:", error);
-				setError("Failed to share the song. Please try again.");
-				setFeedItems(feedItems.filter((item) => item.id !== newFeedItem.id));
-			});
-	};
-
-	const { user } = useUser();
 	//if user not log in, display auth wall
 	if (!user) {
 		return (
@@ -243,9 +280,9 @@ export const MusicFeed = () => {
 									Choose music
 								</button>
 								{selectedSong && (
-									<p className="selected-song">Selected Song: {selectedSong}</p>
+									<p className="selected-song">Selected Song: {selectedSong.name}</p>
 								)}
-								<button className="share-button" onClick={handleShare}>
+								<button className="share-button" onClick={shareSong}>
 									Share
 								</button>
 							</div>
@@ -271,17 +308,21 @@ export const MusicFeed = () => {
 						? feedItems.map((item: FeedItem) => (
 								<li key={item.id} className="friend-item">
 									<div className="friend-info">
-										<p>{item.username} is Listening to...</p>
+										<p>{item.username} is listening to {item.songname}</p>
 										<p className="friend-comment">
-											{item.content}{" "}
-											<a href="#" className="song-description">
-												({item.songID})
-											</a>
-											<img
+											{item.description}</p>
+                                        <p>
+                                            <img
 												src="https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg"
 												className="spotify-logo"
 												alt="Spotify"
-											/>
+										    />
+											<a href={`https://open.spotify.com/track/${item.spotifyId}`} className="song-description"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            >
+												Listen on Spotify
+											</a>
 										</p>
 									</div>
 								</li>
@@ -326,12 +367,12 @@ export const MusicFeed = () => {
 							/>
 						</div>
 						<div className="songs-list">
-							{song.map((track, i) => {
+                            {song.map((track, i) => {
 								return (
 									<button
 										key={track.id}
 										className="song-item"
-										onClick={() => selectSong(track.id)}
+										onClick={() => selectSong({id: track.id, name: track.name, spotifyId: track.id})}
 									>
 										{track.name}
 

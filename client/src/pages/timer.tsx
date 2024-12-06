@@ -23,8 +23,7 @@ interface TimerState {
 }
 
 export function Timer() {
-    const [player, setPlayer] = useState<Spotify.Player | undefined>(undefined);
-    const [is_active, setActive] = useState<boolean>(false);
+    const {player, is_active} = useUser();
   // Factory function for creating default timer state
   // Used when no saved state exists or when saved state is invalid
   const getDefaultState = (): TimerState => ({
@@ -441,12 +440,15 @@ export function Timer() {
           </div>
 
           <div className="control-buttons">
+            {/*
+            hasn't been integrated
             <button
               className="control-button"
               onClick={() => setShowSongSelect(true)}
             >
               Choose Song
             </button>
+            */}
             <button onClick={toggle} className="control-button">
               {isActive ? "PAUSE" : "START"}
             </button>
@@ -619,7 +621,7 @@ export function Timer() {
           </div>
         </>
       )}
-      <SpotifyPlayer player={player} setPlayer={setPlayer} is_active={is_active} setActive={setActive} />
+      <SpotifyPlayer />
     </div>
   );
 }

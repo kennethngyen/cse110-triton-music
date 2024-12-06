@@ -43,6 +43,8 @@ export function createFeedEndpoints(app: any) {
                     spotifyId: events.spotifyId,
                     description: events.description,
                     date: events.date,
+                    username: events.username,
+                    songname: events.songname,
                 })
                 .from(events)
                 .where(inArray(events.id, followeeIds)); // Use followee IDs to filter posts

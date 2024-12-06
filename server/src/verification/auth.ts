@@ -48,6 +48,7 @@ export async function registerUser(email: string, password: string): Promise<{ s
 
       //now, add to user table
       await db.insert(usersTable).values({
+        id: user.id,
         name: email,
         email: email,
       });
