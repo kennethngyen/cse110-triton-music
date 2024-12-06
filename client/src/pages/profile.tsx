@@ -276,7 +276,6 @@ export function Profile() {
                 </div>
                 <div className="friend-info">
                   <p>{friend.name}</p>
-                  <p>{friend.email}</p>
                   <p>
                     :{" "}
                     <button className="text-blue-500 underline">

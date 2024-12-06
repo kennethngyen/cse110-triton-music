@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { API_BASE_URL } from "../constants/constants";
 import { makeAuthRequest } from "../misc/auth";
+import { useUser } from "../contexts/UserContext";
 import "../styles/spotifyplayer.css";
 
 interface Track {
@@ -17,14 +18,10 @@ interface SpotifyDrillingProps {
 }
 
 interface SpotifyPlayerProps {
-    player: Spotify.Player | undefined;
-    setPlayer: React.Dispatch<React.SetStateAction<Spotify.Player | undefined>>; // Type for setPlayer function
-    is_active: boolean;
-    setActive: React.Dispatch<React.SetStateAction<boolean>>;
     token: string;
 }
 
-export const SpotifyPlayer: React.FC<SpotifyDrillingProps> = ({ player, setPlayer, is_active, setActive }: SpotifyDrillingProps) => {
+export const SpotifyPlayer = () => {
     const [accessToken, setToken] = useState<string | null>(null);
 
     useEffect(() => {
@@ -41,7 +38,7 @@ export const SpotifyPlayer: React.FC<SpotifyDrillingProps> = ({ player, setPlaye
     return (
         <div>
             {accessToken ? (
-                <SpotifyPlayerHandler token={accessToken} player={player} setPlayer={setPlayer} is_active={is_active} setActive={setActive} />
+                <SpotifyPlayerHandler token={accessToken} />
             ) : (
                 <p>Please log in to Spotify.</p>
             )}
@@ -49,13 +46,14 @@ export const SpotifyPlayer: React.FC<SpotifyDrillingProps> = ({ player, setPlaye
     );
 };
 
-const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = ({ token, player, setPlayer, is_active, setActive }: SpotifyPlayerProps) => {
-    const [is_paused, setPaused] = useState<boolean>(false);
+const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = ({ token }: SpotifyPlayerProps) => {
+    
     //const [is_active, setActive] = useState<boolean>(false);
     //const [player, setPlayer] = useState<Spotify.Player | undefined>(undefined);
-    const [current_track, setTrack] = useState<Track | undefined>(undefined);
     const count = useRef(1);
     const playerInitialized = useRef(false);
+
+    const { playerReady, setPlayerReady, player, setPlayer, is_active, setActive, is_paused, setPaused, current_track, setTrack } = useUser();
 
     useEffect(() => {
         if (playerInitialized.current) return;  // If player is already initialized, skip
@@ -111,11 +109,64 @@ const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = ({ token, player, set
             playerInitialized.current = true;
 
             count.current += 1;
+            setPlayerReady(true);
         };
+
+        const loadPlayer = () => {
+            
+            const newPlayer = new window.Spotify.Player({
+                name: "Triton Music Web Playback SDK" + count.current,
+                getOAuthToken: (cb: (token: string) => void) => {
+                    cb(token);
+                },
+                volume: 0.5,
+            });
+
+            newPlayer.addListener("ready", ({ device_id }) => {
+                console.log("Ready with Device ID", device_id);
+            });
+
+            newPlayer.addListener("not_ready", ({ device_id }) => {
+                console.log("Device ID has gone offline", device_id);
+            });
+
+            newPlayer.addListener("player_state_changed", (state) => {
+                if (!state) return;
+
+                setTrack(state.track_window.current_track);
+                setPaused(state.paused);
+
+                if (newPlayer) {
+                    newPlayer.getCurrentState().then((state) => {
+                        !state ? setActive(false) : setActive(true);
+                    }).catch((error) => {
+                        console.error("Error getting current state", error);
+                    });
+                }
+            });
+
+            newPlayer.connect();
+            setPlayer(newPlayer);
+
+            playerInitialized.current = true;
+
+            count.current += 1;
+            setPlayerReady(true);
+        };
+        //loadPlayer();
 
         return () => {
             if (player) {
+                /*
                 player.disconnect();  // Clean up the player instance on unmount
+                //playerInitialized.current = false;
+                setActive(false);
+                console.log("disconnected from services");
+                
+                if (playerReady) {
+                    loadPlayer();
+                }
+                    */
             }
         };
     }, [token]);

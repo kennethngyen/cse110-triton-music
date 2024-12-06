@@ -12,16 +12,22 @@ export async function createFeedItem(req: Request, res: Response) {
         return res.status(401).json({ success: false, error: "Unauthorized: User information missing" });
     }
 
-    const { spotifyId, description } = req.body;
+    const { spotifyId, description, songname } = req.body;
 
-    if (!spotifyId || !description) {
+    if (!spotifyId || !description || !songname) {
         return res.status(400).json({ error: "Missing required fields: spotifyId or description" });
     }
 
+    const id = user.id;
+    const username = user.email;
+
     const newFeedItem = {
+        id,
         spotifyId,
         description,
         date: new Date(), // Use a `Date` object to satisfy the type requirement
+        username,
+        songname,
     };
 
     try {
@@ -33,6 +39,8 @@ export async function createFeedItem(req: Request, res: Response) {
                 spotifyId: events.spotifyId,
                 description: events.description,
                 date: events.date,
+                username: events.username,
+                songname: events.songname,
             }); // Explicitly specify fields to return
 
         res.status(201).json({ success: true, data: insertedItem[0] });

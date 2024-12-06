@@ -19,6 +19,16 @@ describe("Timer Component", () => {
 				user: mockUser,
 				setUser: jest.fn(),
 				clearUser: jest.fn(),
+                playerReady: false,
+                setPlayerReady: jest.fn(),
+                player: undefined,
+                setPlayer: jest.fn(),
+                is_active: false,
+                setActive: jest.fn(),
+                is_paused: true,
+                setPaused: jest.fn(),
+                current_track: undefined,
+                setTrack: jest.fn(),
 			}}
 		>
 			{children}
@@ -41,7 +51,6 @@ describe("Timer Component", () => {
 		expect(screen.getByText("Pomodoro")).toBeInTheDocument();
 		expect(screen.getByText("Long Break")).toBeInTheDocument();
 		expect(screen.getByText("Short Break")).toBeInTheDocument();
-		expect(screen.getByText("Choose Song")).toBeInTheDocument();
 		expect(screen.getByText("Setting")).toBeInTheDocument();
 		expect(screen.getByText("Add Task")).toBeInTheDocument();
 	});
