@@ -7,6 +7,7 @@
  */
 export const makeAuthRequest = async (url: string) => {
     const token = localStorage.getItem("token");
+    let possibleError = 200;
     if (token) {
         try {
             const response = await fetch(url, {
@@ -17,6 +18,9 @@ export const makeAuthRequest = async (url: string) => {
                 },
             });
             if (!response.ok) {
+                if (response.status == 403) {
+                    possibleError = 403;
+                }
                 console.error("No match from auth token to User object");
                 throw new Error("No match from auth token to User object");
             }
@@ -24,8 +28,12 @@ export const makeAuthRequest = async (url: string) => {
             const jsonData = await response.json();
             return jsonData;
         } catch (err) {
-            console.error("Error fetching user data:", err);
-            localStorage.removeItem("token"); // Remove token if it’s invalid
+            if (possibleError == 403) {
+                console.error("Token is expired/malformed:", err);
+                localStorage.removeItem("token"); // Remove token if it’s invalid
+            } else {
+                console.error("Invalid request", err);
+            }
             return null;
         }
     }
