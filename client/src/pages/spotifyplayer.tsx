@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { API_BASE_URL } from "../constants/constants";
 import { makeAuthRequest } from "../misc/auth";
+import "../styles/spotifyplayer.css";
 
 interface Track {
     name: string;
@@ -8,11 +9,22 @@ interface Track {
     album: { images: { url: string }[] };
 }
 
+interface SpotifyDrillingProps {
+    player: Spotify.Player | undefined;
+    setPlayer: React.Dispatch<React.SetStateAction<Spotify.Player | undefined>>; // Type for setPlayer function
+    is_active: boolean;
+    setActive: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
 interface SpotifyPlayerProps {
+    player: Spotify.Player | undefined;
+    setPlayer: React.Dispatch<React.SetStateAction<Spotify.Player | undefined>>; // Type for setPlayer function
+    is_active: boolean;
+    setActive: React.Dispatch<React.SetStateAction<boolean>>;
     token: string;
 }
 
-export const SpotifyPlayer = () => {
+export const SpotifyPlayer: React.FC<SpotifyDrillingProps> = ({ player, setPlayer, is_active, setActive }: SpotifyDrillingProps) => {
     const [accessToken, setToken] = useState<string | null>(null);
 
     useEffect(() => {
@@ -29,7 +41,7 @@ export const SpotifyPlayer = () => {
     return (
         <div>
             {accessToken ? (
-                <SpotifyPlayerHandler token={accessToken} />
+                <SpotifyPlayerHandler token={accessToken} player={player} setPlayer={setPlayer} is_active={is_active} setActive={setActive} />
             ) : (
                 <p>Please log in to Spotify.</p>
             )}
@@ -37,10 +49,10 @@ export const SpotifyPlayer = () => {
     );
 };
 
-const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = ({ token }: SpotifyPlayerProps) => {
+const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = ({ token, player, setPlayer, is_active, setActive }: SpotifyPlayerProps) => {
     const [is_paused, setPaused] = useState<boolean>(false);
-    const [is_active, setActive] = useState<boolean>(false);
-    const [player, setPlayer] = useState<Spotify.Player | undefined>(undefined);
+    //const [is_active, setActive] = useState<boolean>(false);
+    //const [player, setPlayer] = useState<Spotify.Player | undefined>(undefined);
     const [current_track, setTrack] = useState<Track | undefined>(undefined);
     const count = useRef(1);
     const playerInitialized = useRef(false);
@@ -131,7 +143,7 @@ const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = ({ token }: SpotifyPl
                         <>
                             <img
                                 src={current_track.album.images[0].url}
-                                className="now-playing__cover"
+                                className={`now-playing__cover ${!is_paused ? 'playing' : ''}`}
                                 alt=""
                                 width="200"
                             />
@@ -148,13 +160,6 @@ const SpotifyPlayerHandler: React.FC<SpotifyPlayerProps> = ({ token }: SpotifyPl
                                     onClick={() => player?.previousTrack()}
                                 >
                                     &lt;&lt;
-                                </button>
-
-                                <button
-                                    className="btn-spotify"
-                                    onClick={() => player?.togglePlay()}
-                                >
-                                    {is_paused ? "PLAY" : "PAUSE"}
                                 </button>
 
                                 <button

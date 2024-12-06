@@ -23,6 +23,8 @@ interface TimerState {
 }
 
 export function Timer() {
+    const [player, setPlayer] = useState<Spotify.Player | undefined>(undefined);
+    const [is_active, setActive] = useState<boolean>(false);
   // Factory function for creating default timer state
   // Used when no saved state exists or when saved state is invalid
   const getDefaultState = (): TimerState => ({
@@ -269,7 +271,13 @@ export function Timer() {
       const currentTimeInMs = Date.now();
       const durationInMs = (displayMinutes * 60 + displaySeconds) * 1000;
       setTargetTime(currentTimeInMs + durationInMs);
+      if (player && is_active) {
+        player.resume();
+      }
     } else {
+      if (player && is_active) {
+        player.pause();
+      }
       if (targetTime) {
         const remainingTime = targetTime - Date.now();
         const remainingMinutes = Math.floor(remainingTime / (1000 * 60));
@@ -302,9 +310,12 @@ export function Timer() {
           setTargetTime(null);
           setDisplayMinutes(0);
           setDisplaySeconds(0);
+          if (player && is_active) {
+            player.pause();
+          }
           // Play notification sound not working correctly since incorrect path
-          const audio = new Audio("/path-to-your-sound.mp3");
-          audio.play().catch((e) => console.log("Audio play failed:", e));
+          //const audio = new Audio("/path-to-your-sound.mp3");
+          //audio.play().catch((e) => console.log("Audio play failed:", e));
         } else {
            // Update display time
           setDisplayMinutes(Math.floor(remaining / (1000 * 60)));
@@ -608,7 +619,7 @@ export function Timer() {
           </div>
         </>
       )}
-      <SpotifyPlayer />
+      <SpotifyPlayer player={player} setPlayer={setPlayer} is_active={is_active} setActive={setActive} />
     </div>
   );
 }
