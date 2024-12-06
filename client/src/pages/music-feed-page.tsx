@@ -207,6 +207,14 @@ export const MusicFeed = () => {
 		);
 	}
 
+    if (accessToken == "") {
+        return (
+			<div>
+				<h1 className="text-3xl text-center text-red-500">Please connect your Spotify account.</h1>
+			</div>
+		);
+    }
+
 	return (
 		<div className="music-feed">
 			<div className="feed-section">
